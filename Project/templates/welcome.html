@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <title>Главная страница</title>
+{% endblock %}
+
+{% block body %}
+
+    <div class="text-center">
+        <div>
+            <h1 class="text">Привет, <font face="MV BOLI">{{ username }}!</font></h1>
+        </div>
+        <div>
+            <h2 class="text">Рекомендуемые тесты:</h2>
+        </div>
+    </div>
+    <br><br><br>
+    <div class="container">
+        <div class="list-group col-md-9 mx-auto">
+            {% for test in lst %}
+                  <a href="#" class="list-group-item list-group-item-action cell">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1">{{ test["title"] }}</h5>
+                      <small>{{ test["date"] }}</small>
+                    </div>
+                    <p class="mb-1">Тема: {{ test["description"] }}</p>
+                    <small>Количество вопросов: {{ test["questions"] }}</small>
+                  </a>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
