@@ -1,0 +1,57 @@
+{% extends "base_login.html" %}
+
+{% block head %}
+    <Title>Авторизация</Title>
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="row rowBg align-items-center justify-content-center">
+        <div class="col-6" style="margin-top: 50px;">
+            <h1 class="text-center">Авторизация</h1>
+            <br>
+            <form action="/welcome" method="post" class="login_form container">
+
+                {{ form.hidden_tag() }}
+
+                <div class="row">
+                    <div class="col-3"></div>
+                    <div class="col-md-2">{{ form.username.label }}</div>
+                    <div class="col-md-4">{{ form.username(class="form-control") }}</div>
+                    <div class="col-3"></div>
+
+                    {% for error in form.username.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+                <div class="row">
+                    <div class="col-3"></div>
+                    <div class="col-md-2"> {{ form.password.label }}</div>
+                    <div class="col-md-4">{{ form.password(class="form-control", type="password") }}</div>
+                    <div class="col-3"></div>
+
+                    {% for error in form.password.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-3"></div>
+                    <div class="col-md-3">{{ form.submit(type="submit", class="btn btn-primary w-100", href="/welcome") }}</div>
+                    <div class="col-md-3"><a href="/registration" class="btn btn-secondary w-100">Регистрация</a></div>
+                    <div class="col-3"></div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+{% endblock %}

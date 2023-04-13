@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block head %}<title>Главная страница</title>{% endblock %}
+
+{% block body %}
+    <br>
+    <div class="container">
+        <div class="col-md-9 mx-auto">
+            <div class="list-group">
+                {% for test in list_of_tests %}
+                      <a href="#" class="list-group-item list-group-item-action cell">
+                        <div class="d-flex w-100 justify-content-between">
+                          <h5 class="mb-1">{{ test["title"] }}</h5>
+                          <small>{{ test["date"] }}</small>
+                        </div>
+                        <p class="mb-1">Тема: {{ test["description"] }}</p>
+                        <small>Количество вопросов: {{ test["questions"] }}</small>
+                      </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
