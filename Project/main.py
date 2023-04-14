@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, render_template, redirect, request
 from login import LoginForm
 from registration import RegForm
@@ -29,6 +30,14 @@ def reg():
 
     if form.validate_on_submit():
         print('redirection')
+
+        req_data = requests.post('http://127.0.0.1:8080/api/users', json={'name': form.username.data,
+              'about': '-',
+              'login': form.username.data,
+              'password': form.password.data
+             }).json()
+        print(req_data)
+
         return redirect('/welcome')
 
     return render_template('reg.html', form=form)
@@ -38,40 +47,35 @@ def reg():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-
+    error = ''
     if form.validate_on_submit():
-        print('redirection')
-        return redirect('/welcome')
+        req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
+        print(req_data)
+        user = list(filter(lambda x: x['login'] == form.username.data, req_data))
 
-    return render_template('login.html', form=form)
+        if not user:
+            error = 'неверный логин или пароль'
+        elif user[0]['password'] == form.password.data:
+            return redirect('/welcome')
+        else:
+            error = 'неверный логин или пароль'
+
+    return render_template('login.html', form=form, error=error)
 
 
 # Приветствующая страница с рекомендованными (рандомными, ну или выбраны, допустим, по самому высокому рейтингу) тестами
 @app.route('/welcome', methods=['GET', 'POST'])
 def welcome():
-    global data
 
-    lst = [{"title": "Первый тест", "description": "Биология", "questions": 3, "date": "29.02.1999"},
-           {"title": 'Второй тест', "description": "Математика", "questions": 5, "date": "01.01.2021"},
-           {"title": 'Третий тест', "description": "Кулинария", "questions": 10, "date": "02.03.2023"}]
+    req_data = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
+    tests = []
+    for test in req_data:
+        tests.append({'title': test['title'], 'description': test['about'], 'questions': len(test['questions']), 'date': '01.01.02'})
 
-    try:
-        params = {
-            'username': request.form['username'],
-            'password': request.form['password'],
-            'lst': lst
-        }
 
-        print('success authorization')
+    print('success authorization')
 
-        data = params
-
-        return render_template('welcome.html', **params)
-
-    except KeyError:
-        print('already in system')
-
-        return render_template('welcome.html', **data)
+    return render_template('welcome.html', lst=tests)
 
 
 # Главная страница со всеми тестами

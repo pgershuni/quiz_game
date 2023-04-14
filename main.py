@@ -131,7 +131,7 @@ def get_test(test_key, all=False):# получение тестов
     results = []
 
     for test in tests: # создание ответа
-        result = {'name': test.title,
+        result = {'title': test.title,
                   'about': test.about,
                   'key': test.key,
                   'user_id': test.user_id,
@@ -156,7 +156,6 @@ def get_user(id, all=False):# получение пользователя
         result.append({'id': user.id,
                   'name': user.name,
                   'about': user.about,
-                  'telegram_key': user.telegram_key,
                   'login': user.login,
                   'password': user.password})
     if all:# вывод всех тестов
@@ -258,7 +257,7 @@ class UserListResource(Resource):
         return jsonify(
             {
                 'users':
-                    [get_user('', all=True)]
+                    get_user('', all=True)
             }
         )
 
