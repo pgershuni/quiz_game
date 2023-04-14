@@ -37,7 +37,6 @@ class User(SqlAlchemyBase):
                            primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    telegram_key = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     login = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
 
@@ -58,8 +57,10 @@ class Option(SqlAlchemyBase):
 
 class Telegram_key(SqlAlchemyBase):
     __tablename__ = 'Telegram_keys'
-
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
+    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('Users.id'))
+    date = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
     key = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    user = orm.relationship('User', backref='telegram_keys')
 
