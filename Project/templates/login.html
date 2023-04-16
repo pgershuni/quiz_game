@@ -11,7 +11,7 @@
         <div class="col-6" style="margin-top: 50px;">
             <h1 class="text-center">Авторизация</h1>
             <br>
-            <form method="post" class="login_form container">
+            <form action="/check_data/login" method="post" class="login_form container">
 
                 {{ form.hidden_tag() }}
 
@@ -48,7 +48,14 @@
                     <div class="col-md-3"><a href="/registration" class="btn btn-secondary w-100">Регистрация</a></div>
                     <div class="col-3"></div>
                 </div>
-                {{ error }}
+                <br>
+                <div class="row">
+                    <div class="col-4"></div>
+                    <div class="col text-center warn">
+                        <h5>{{ _error }}</h5>
+                    </div>
+                    <div class="col-4"></div>
+                </div>
             </form>
 
         </div>
