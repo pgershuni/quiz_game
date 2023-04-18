@@ -6,7 +6,7 @@
 
     <div class="row rowBg align-items-center justify-content-center">
         <div class="col-6" style="margin-top: 50px;">
-            <form method="post" class="login_form container">
+            <form action="/check_data/reg" method="post" class="login_form container">
 
                 <div class="row">
                     <div class="col"><h1 class="text-center">Регистрация</h1></div>
@@ -26,7 +26,18 @@
                     {% endfor %}
 
                 </div>
+                <div class="row">
+                    <div class="col-3"></div>
+                    <div class="col-md-2"> {{ form.login.label }}</div>
+                    <div class="col-md-4">{{ form.login(class="form-control", type="email") }}</div>
+                    <div class="col-3"></div>
 
+                    {% for error in form.password.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
                 <div class="row">
                     <div class="col-3"></div>
                     <div class="col-md-2"> {{ form.password.label }}</div>
@@ -39,10 +50,19 @@
                         </div>
                     {% endfor %}
                 </div>
+
                 <br>
                 <div class="row">
                     <div class="col-3"></div>
                     <div class="col-6">{{ form.submit(type="submit", class="btn btn-primary w-100") }}</div>
+                    <div class="col-3"></div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-3"></div>
+                    <div class="col text-center warn">
+                        <h5>{{ _error }}</h5>
+                    </div>
                     <div class="col-3"></div>
                 </div>
             </form>
