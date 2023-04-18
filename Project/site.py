@@ -1,5 +1,6 @@
 import requests
 from flask import Flask, render_template, redirect, request
+from flask_login import LoginManager, UserMixin, current_user
 from login import LoginForm
 from registration import RegForm
 
@@ -15,6 +16,30 @@ app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 # - Открытие тестов
 # - Рекоммендации
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
+    return User(user)
+
+
+class User(UserMixin):
+
+    def __init__(self, data):
+        self._id = data['id']
+        self._data = data
+
+    def get_id(self):
+        return self._id
+
+    def get_data(self):
+        return self._data
+
+
+
 @app.route('/')
 def start():
     return redirect('/login')
@@ -22,9 +47,7 @@ def start():
 
 @app.route('/check_data/<_type>', methods=['GET', 'POST'])
 def check_data(_type):
-    global name
 
-    name = request.form['username']
 
     req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
     user = list(filter(lambda x: x['name'] == request.form['username'], req_data))
@@ -36,6 +59,8 @@ def check_data(_type):
             error = 'неверный логин или пароль'
 
         elif user[0]['password'] == request.form['password']:
+            User(user)
+            load_user(user['id'])
             return redirect('/welcome')
 
         else:
@@ -91,7 +116,7 @@ def welcome():
 
     print('success authorization')
 
-    return render_template('welcome.html', lst=tests, username=name)
+    return render_template('welcome.html', lst=tests, username=current_user.get_data()['name'])
 
 
 # Главная страница со всеми тестами
