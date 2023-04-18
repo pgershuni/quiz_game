@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 
-{% block head %}<title>Мои тесты</title>{% endblock %}
+{% block head %}<title>Личный кабинет</title>{% endblock %}
 
 {% block body %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">Статистика</div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="list-group col-md-9 mx-auto">
             {% for test in lst %}
@@ -17,4 +24,5 @@
             {% endfor %}
         </div>
     </div>
+
 {% endblock %}

@@ -8,12 +8,11 @@ app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 
 
 # Доделать:
-# - Обычный личный кабинет со статистикой
+# - Обычный личный кабинет со статистикой (Добавить в бд дополнительные колонки со статистикой )
 # - Создание теста
 # - Поиск
 # - Способы сортировки на главной странице
 # - Открытие тестов
-# - Рекоммендации
 
 @app.route('/')
 def start():
@@ -117,33 +116,26 @@ def find():
 
 
 # Личный кабинет
-@app.route('/profile/<_next>', methods=['GET', 'POST'])
-def cabinet(_next):
-    print("profile")
+@app.route('/profile/stats', methods=['GET', 'POST'])
+def stats():
+    print("stats")
 
-    # Переадресация на мои тесты и на решенные тесты
-    if _next in ("my_tests", "ready_tests"):
-        return render_template('my_tests.html' if _next == "my_tests" else 'ready_tests.html')
+    data = requests.get('http://127.0.0.1:8080/api/users').json()
+    print(data)
 
-    # Личная статистика
-    elif _next == "per_acc":
-        return render_template("per_acc.html")
+    return render_template('stats.html')
 
 
 # Создание тестов
-@app.route('/creating', methods=['GET', 'POST'])
-def create():
+@app.route('/creating/<_next>', methods=['GET', 'POST'])
+def create(_next):
     print("creating")
 
-    return render_template('creating.html')
+    if _next == "questions":
+        return render_template("creating_question.html")
 
-
-# Страница с рекомендациями
-@app.route('/recommendation', methods=['GET', 'POST'])
-def recs():
-    print('recommendations')
-
-    return render_template('recs.html ')
+    else:
+        return render_template('creating.html')
 
 
 if __name__ == '__main__':
