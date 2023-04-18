@@ -1,6 +1,6 @@
 import requests
 from flask import Flask, render_template, redirect, request
-from flask_login import LoginManager, UserMixin, current_user
+from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
 from login import LoginForm
 from registration import RegForm
 
@@ -59,8 +59,7 @@ def check_data(_type):
             error = 'неверный логин или пароль'
 
         elif user[0]['password'] == request.form['password']:
-            User(user)
-            load_user(user['id'])
+            login_user(User(user[0]))
             return redirect('/welcome')
 
         else:
@@ -73,12 +72,13 @@ def check_data(_type):
             error = 'пользователь уже зарегистрирован'
 
         else:
-            requests.post('http://127.0.0.1:8080/api/users', json={'name': request.form['username'],
+            user_id = requests.post('http://127.0.0.1:8080/api/users', json={'name': request.form['username'],
                                                                    'about': '-',
                                                                    'login': request.form['login'],
                                                                    'password': request.form['password']
                                                                    }).json()
-
+            user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}')['user']
+            login_user(User(user))
             return redirect('/welcome')
 
         return render_template('reg.html', form=RegForm(), _error=error)
