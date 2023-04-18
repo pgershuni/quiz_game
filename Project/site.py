@@ -15,8 +15,6 @@ app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 # - Открытие тестов
 # - Рекоммендации
 
-# - Создать кастомный валидатор для проверки длины пароля
-
 @app.route('/')
 def start():
     return redirect('/login')
@@ -29,7 +27,9 @@ def check_data(_type):
     name = request.form['username']
 
     req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
-    user = list(filter(lambda x: x['login'] == request.form['username'], req_data))
+    user = list(filter(lambda x: x['name'] == request.form['username'], req_data))
+
+    print(req_data)
 
     if _type == 'login':
         if not user:
@@ -143,7 +143,7 @@ def create():
 def recs():
     print('recommendations')
 
-    return render_template('recommendations.html ')
+    return render_template('recs.html ')
 
 
 if __name__ == '__main__':
