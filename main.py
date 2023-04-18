@@ -1,11 +1,11 @@
 from flask import jsonify
 from flask import make_response
 from flask import Flask, url_for, request
-from data import _db_session
+from _data import _db_session
 import random
 import datetime
 from flask_restful import reqparse, abort, Api, Resource
-from data.__all_models import Question, Test, Option, User, Telegram_key
+from _data.__all_models import Question, Test, Option, User, Telegram_key
 
 _db_session.global_init("db/tests.db")
 db_sess = _db_session.create_session()
