@@ -1,21 +1,44 @@
 import requests
 from flask import Flask, render_template, redirect, request
+from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
 from login import LoginForm
 from registration import RegForm
 
 app = Flask('app')
 app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 
-
 # Доделать:
-# - Обычный личный кабинет со статистикой
+# - Обычный личный кабинет со статистикой (Добавить в бд дополнительные колонки со статистикой )
 # - Создание теста
 # - Поиск
 # - Способы сортировки на главной странице
 # - Открытие тестов
-# - Рекоммендации
 
-# - Создать кастомный валидатор для проверки длины пароля
+# Заметки:
+# creating.html категория - required
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
+    return User(user)
+
+
+class User(UserMixin):
+
+    def __init__(self, data):
+        self._id = data['id']
+        self._data = data
+
+    def get_id(self):
+        return self._id
+
+    def get_data(self):
+        return self._data
+
 
 @app.route('/')
 def start():
@@ -24,18 +47,15 @@ def start():
 
 @app.route('/check_data/<_type>', methods=['GET', 'POST'])
 def check_data(_type):
-    global name
-
-    name = request.form['username']
-
     req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
-    user = list(filter(lambda x: x['login'] == request.form['username'], req_data))
+    user = list(filter(lambda x: x['name'] == request.form['username'], req_data))
 
     if _type == 'login':
         if not user:
             error = 'неверный логин или пароль'
 
         elif user[0]['password'] == request.form['password']:
+            login_user(User(user[0]))
             return redirect('/welcome')
 
         else:
@@ -48,12 +68,13 @@ def check_data(_type):
             error = 'пользователь уже зарегистрирован'
 
         else:
-            requests.post('http://127.0.0.1:8080/api/users', json={'name': request.form['username'],
-                                                                   'about': '-',
-                                                                   'login': request.form['login'],
-                                                                   'password': request.form['password']
-                                                                   }).json()
-
+            user_id = requests.post('http://127.0.0.1:8080/api/users', json={'name': request.form['username'],
+                                                                             'about': '-',
+                                                                             'login': request.form['login'],
+                                                                             'password': request.form['password']
+                                                                             }).json()
+            user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
+            login_user(User(user))
             return redirect('/welcome')
 
         return render_template('reg.html', form=RegForm(), _error=error)
@@ -85,13 +106,14 @@ def login():
 def welcome():
     req_data = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
     tests = []
+    print(req_data)
     for test in req_data:
-        tests.append({'title': test['title'], 'description': test['about'], 'questions': len(test['questions']),
+        tests.append({'title': test['name'], 'description': test['about'], 'questions': len(test['questions']),
                       'date': '01.01.02'})
 
     print('success authorization')
 
-    return render_template('welcome.html', lst=tests, username=name)
+    return render_template('welcome.html', lst=tests, username=current_user.get_data()['name'])
 
 
 # Главная страница со всеми тестами
@@ -117,33 +139,31 @@ def find():
 
 
 # Личный кабинет
-@app.route('/profile/<_next>', methods=['GET', 'POST'])
-def cabinet(_next):
-    print("profile")
+@app.route('/profile/stats', methods=['GET', 'POST'])
+def stats():
+    print("stats")
 
-    # Переадресация на мои тесты и на решенные тесты
-    if _next in ("my_tests", "ready_tests"):
-        return render_template('my_tests.html' if _next == "my_tests" else 'ready_tests.html')
+    # data = requests.get('http://127.0.0.1:8080/api/users').json()
 
-    # Личная статистика
-    elif _next == "per_acc":
-        return render_template("per_acc.html")
+    return render_template('stats.html')
 
 
 # Создание тестов
-@app.route('/creating', methods=['GET', 'POST'])
-def create():
+@app.route('/creating/<_next>', methods=['GET', 'POST'])
+def create(_next):
     print("creating")
 
-    return render_template('creating.html')
+    if _next == "questions":
+        # print(request.form)
+        return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int)
 
-
-# Страница с рекомендациями
-@app.route('/recommendation', methods=['GET', 'POST'])
-def recs():
-    print('recommendations')
-
-    return render_template('recommendations.html ')
+    else:
+        # cats = requests.get('http://127.0.0.1:8080/api/categories')
+        cats = [{'id': 1, 'text': 'a'},
+                {'id': 2, 'text': 'b'},
+                {'id': 3, 'text': 'c'}]
+        # print(*requests.get('http://127.0.0.1:8080/api/users').json()['users'])
+        return render_template('creating.html', categories=cats)
 
 
 if __name__ == '__main__':

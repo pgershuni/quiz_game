@@ -5,13 +5,37 @@ from data import _db_session
 import random
 import datetime
 from flask_restful import reqparse, abort, Api, Resource
-from data.__all_models import Question, Test, Option, User, Telegram_key
+from data.__all_models import Question, Test, Option, User, Telegram_key, Category
 
 _db_session.global_init("db/tests.db")
 db_sess = _db_session.create_session()
 
 app = Flask('app')
 api = Api(app)
+
+
+def add_categories():
+    categories = ['Химия',
+                  'Физика',
+                  'География',
+                  'Биология',
+                  'Информатика',
+                  'История',
+                  'Алгебра',
+                  'Геометрия',
+                  'Геология',
+                  'Астрономия',
+                  'Информационные технологии']
+
+    for category in categories:
+        cat = Category()
+        cat.text = category
+
+        db_sess.add(cat)
+        db_sess.commit()
+
+
+add_categories()
 
 
 def add_option(text, question_id, is_correct):  # добавление в базу данных варианта выбора \ ответа
@@ -56,10 +80,17 @@ def add_question(question, answer, test_id, question_type='ord'):  # добав�
                 add_option(text, id, True)
 
 
-def add_test(title, about, questions, user_id, is_private):  # добавление теста в бд
+def add_test(title, about, questions, user_id, is_private, category_text):  # добавление теста в бд
     test = Test()
     test.title = title
     test.about = about
+
+    category = db_sess.query(Category).filter(Category.text == category_text).first()
+    if category:
+        test.category = category
+    else:
+        return 'bad category'
+
     test.key = random.randint(0, 1000000000)  # генерация ключа теста
     test.user_id = user_id
     test.is_private = is_private
@@ -131,8 +162,9 @@ def get_test(test_key, all=False):  # получение тестов
     results = []
 
     for test in tests:  # создание ответа
-        result = {'title': test.title,
+        result = {'name': test.title,
                   'about': test.about,
+                  'category': test.category.text,
                   'key': test.key,
                   'user_id': test.user_id,
                   'is_private': test.is_private,
@@ -156,6 +188,7 @@ def get_user(id, all=False):  # получение пользователя
         result.append({'id': user.id,
                        'name': user.name,
                        'about': user.about,
+                       'telegram_key': user.telegram_key,
                        'login': user.login,
                        'password': user.password})
     if all:  # вывод всех тестов
@@ -200,6 +233,7 @@ class TestListResource(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('title', type=str)
     parser.add_argument('about', type=str)
+    parser.add_argument('category', type=str)
     parser.add_argument('questions', action='append', type=dict)
     parser.add_argument('is_private', type=bool)
     parser.add_argument('user_id', type=int)
@@ -215,8 +249,17 @@ class TestListResource(Resource):
     def post(self):  # обработчик добавления теста
         args = self.parser.parse_args()
         # создание теста
-        res = add_test(args['title'], args['about'], args['questions'], args['user_id'], args['is_private'])
-        if res == 'bad questions' or res == 'bad type' or res == 'questions not passed' or res == 'bad answer':
+        res = add_test(args['title'],
+                       args['about'],
+                       args['questions'],
+                       args['user_id'],
+                       args['is_private'],
+                       args['category'])
+        if res == 'bad questions' or \
+                res == 'bad type' or \
+                res == 'questions not passed' or \
+                res == 'bad answer' or \
+                res == 'bad category':
             # обработка ошибок добавления
             abort(400, message=f'error, {res}')
         return jsonify({'success': 'OK', 'key': res})
