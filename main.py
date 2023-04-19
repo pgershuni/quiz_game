@@ -35,16 +35,7 @@ def add_categories():
         db_sess.commit()
 
 
-add_categories()
-
-
-def add_option(text, question_id, is_correct):  # добавление в базу данных варианта выбора \ ответа
-
-add_categories()
-
-
 def add_option(text, question_id, is_correct):# добавление в базу данных варианта выбора \ ответа
-
     opt = Option()
     opt.text = text
     opt.question_id = question_id
@@ -85,9 +76,6 @@ def add_question(question, answer, test_id, question_type='ord'):# добавл�
             for text in answer:
                 add_option(text, id, True)
 
-
-
-def add_test(title, about, questions, user_id, is_private, category_text):  # добавление теста в бд
 
 def add_test(title, about, questions, user_id, is_private, category_text):# добавление теста в бд
 
