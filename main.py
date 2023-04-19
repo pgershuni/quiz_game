@@ -192,7 +192,7 @@ def get_user(id, all=False):  # получение пользователя
                        'passed_tests': user.num_passed_tests,
                        'name': user.name,
                        'about': user.about,
-                       'telegram_key': user.telegram_key.key,
+                       'telegram_key': user.telegram_key.key if user.telegram_key else None,
                        'login': user.login,
                        'password': user.password})
     if all:  # вывод всех тестов

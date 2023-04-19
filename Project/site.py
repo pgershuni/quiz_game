@@ -73,7 +73,8 @@ def check_data(_type):
                                                                              'about': '-',
                                                                              'login': request.form['login'],
                                                                              'password': request.form['password']
-                                                                             }).json()
+                                                                             }).json()['id']
+            print(user_id, requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json())
             user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
             login_user(User(user))
             return redirect('/welcome')
