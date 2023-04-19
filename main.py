@@ -6,6 +6,7 @@ import random
 import datetime
 from flask_restful import reqparse, abort, Api, Resource
 from data.__all_models import Question, Test, Option, User, Telegram_key, Category
+
 _db_session.global_init("db/tests.db")
 db_sess = _db_session.create_session()
 
@@ -32,10 +33,18 @@ def add_categories():
 
         db_sess.add(cat)
         db_sess.commit()
+
+
+add_categories()
+
+
+def add_option(text, question_id, is_correct):  # добавление в базу данных варианта выбора \ ответа
+
 add_categories()
 
 
 def add_option(text, question_id, is_correct):# добавление в базу данных варианта выбора \ ответа
+
     opt = Option()
     opt.text = text
     opt.question_id = question_id
@@ -77,7 +86,11 @@ def add_question(question, answer, test_id, question_type='ord'):# добавл�
                 add_option(text, id, True)
 
 
+
+def add_test(title, about, questions, user_id, is_private, category_text):  # добавление теста в бд
+
 def add_test(title, about, questions, user_id, is_private, category_text):# добавление теста в бд
+
     test = Test()
     test.title = title
     test.about = about
@@ -88,7 +101,11 @@ def add_test(title, about, questions, user_id, is_private, category_text):# до
     else:
         return 'bad category'
 
+
+    test.key = random.randint(0, 1000000000)  # генерация ключа теста
+
     test.key = random.randint(0, 1000000000) # генерация ключа теста
+
     test.user_id = user_id
     test.is_private = is_private
     if not questions:# проверка наличия вопросов
@@ -159,7 +176,11 @@ def get_test(test_key, all=False):# получение тестов
         tests = db_sess.query(Test).filter(Test.key == test_key)
     results = []
 
+
+    for test in tests:  # создание ответа
+
     for test in tests: # создание ответа
+
         result = {'name': test.title,
                   'about': test.about,
                   'category': test.category.text,
@@ -184,12 +205,21 @@ def get_user(id, all=False):# получение пользователя
 
     for user in users:# создание ответа
         result.append({'id': user.id,
+
+                       'name': user.name,
+                       'about': user.about,
+                       'telegram_key': user.telegram_key,
+                       'login': user.login,
+                       'password': user.password})
+    if all:  # вывод всех тестов
+
                   'name': user.name,
                   'about': user.about,
                   'telegram_key': user.telegram_key,
                   'login': user.login,
                   'password': user.password})
     if all:# вывод всех тестов
+
         return result
     else:# вывод теста по ключу
         return result[0]

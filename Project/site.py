@@ -7,13 +7,16 @@ from registration import RegForm
 app = Flask('app')
 app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 
-
 # Доделать:
 # - Обычный личный кабинет со статистикой (Добавить в бд дополнительные колонки со статистикой )
 # - Создание теста
 # - Поиск
 # - Способы сортировки на главной странице
 # - Открытие тестов
+
+
+# Заметки:
+# creating.html категория - required
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -47,6 +50,9 @@ def start():
 @app.route('/check_data/<_type>', methods=['GET', 'POST'])
 def check_data(_type):
 
+    req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
+    user = list(filter(lambda x: x['name'] == request.form['username'], req_data))
+
 
     req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
     user = list(filter(lambda x: x['name'] == request.form['username'], req_data))
@@ -72,11 +78,19 @@ def check_data(_type):
 
         else:
             user_id = requests.post('http://127.0.0.1:8080/api/users', json={'name': request.form['username'],
+
+                                                                             'about': '-',
+                                                                             'login': request.form['login'],
+                                                                             'password': request.form['password']
+                                                                             }).json()
+            user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
+
                                                                    'about': '-',
                                                                    'login': request.form['login'],
                                                                    'password': request.form['password']
                                                                    }).json()
             user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}')['user']
+
             login_user(User(user))
             return redirect('/welcome')
 
@@ -109,8 +123,9 @@ def login():
 def welcome():
     req_data = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
     tests = []
+    print(req_data)
     for test in req_data:
-        tests.append({'title': test['title'], 'description': test['about'], 'questions': len(test['questions']),
+        tests.append({'title': test['name'], 'description': test['about'], 'questions': len(test['questions']),
                       'date': '01.01.02'})
 
     print('success authorization')
@@ -145,8 +160,12 @@ def find():
 def stats():
     print("stats")
 
+
+    # data = requests.get('http://127.0.0.1:8080/api/users').json()
+
     data = requests.get('http://127.0.0.1:8080/api/users').json()
     print(data)
+
 
     return render_template('stats.html')
 
@@ -157,10 +176,23 @@ def create(_next):
     print("creating")
 
     if _next == "questions":
+
+        # print(request.form)
+        return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int)
+
+    else:
+        # cats = requests.get('http://127.0.0.1:8080/api/categories')
+        cats = [{'id': 1, 'text': 'a'},
+                {'id': 2, 'text': 'b'},
+                {'id': 3, 'text': 'c'}]
+        # print(*requests.get('http://127.0.0.1:8080/api/users').json()['users'])
+        return render_template('creating.html', categories=cats)
+
         return render_template("creating_question.html")
 
     else:
         return render_template('creating.html')
+
 
 
 if __name__ == '__main__':
