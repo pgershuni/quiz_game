@@ -23,7 +23,7 @@ login_manager.init_app(app)
 # Почините это, а то, если в бд нет пользователя user, эта штука работать не будет
 @login_manager.user_loader
 def load_user(user_id):
-    user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['users']
+    user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
     print(user)
     return User(user)
 
@@ -148,10 +148,14 @@ def find(name):
 @app.route('/profile/stats', methods=['GET', 'POST'])
 def stats():
     print("stats")
-
-    params = {'percent': 40}
-
-    return render_template('stats.html', **params)
+    params = current_user.get_data()['passed_tests']
+    if str(params)[-1] == '1':
+        message = 'Всего пройдено ' + str(params) + ' тест'
+    elif str(params)[-1] == '2' or str(params)[-1] == '3' or str(params)[-1] == '4':
+        message = 'Всего пройдено ' + str(params) + ' теста'
+    else:
+        message = 'Всего пройдено ' + str(params) + ' тестов'
+    return render_template('stats.html', mess_with_count=message)
 
 
 # Создание тестов
