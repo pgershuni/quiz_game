@@ -84,13 +84,6 @@ def check_data(_type):
                                                                              'password': request.form['password']
                                                                              }).json()
             user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
-
-                                                                   'about': '-',
-                                                                   'login': request.form['login'],
-                                                                   'password': request.form['password']
-                                                                   }).json()
-            user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}')['user']
-
             login_user(User(user))
             return redirect('/welcome')
 
@@ -190,8 +183,6 @@ def create(_next):
 
         return render_template("creating_question.html")
 
-    else:
-        return render_template('creating.html')
 
 
 
