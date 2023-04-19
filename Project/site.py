@@ -23,7 +23,7 @@ login_manager.init_app(app)
 # Почините это, а то, если в бд нет пользователя user, эта штука работать не будет
 @login_manager.user_loader
 def load_user(user_id):
-    user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
+    user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['users']
     print(user)
     return User(user)
 
