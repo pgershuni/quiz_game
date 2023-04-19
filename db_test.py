@@ -18,7 +18,7 @@ print(response.json())
 response = requests.post('http://127.0.0.1:8080/api/telegram_keys', json={'user_id': 1})
 print(response.json())
 
-response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'название5',
+response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'название5', 'category': 'Химия',
               'about': 'о чем5',
               'questions': [
                 {'type': 'ord',
@@ -34,7 +34,7 @@ response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'на
               'user_id': 2})
 print(response.json())
 
-response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'название',
+response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'название', 'category': 'Химия',
               'about': 'о чем',
               'questions': [
                 {'type': 'ord',
@@ -50,7 +50,7 @@ response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'на
               'user_id': 2})
 print(response.json())
 
-response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'название теста1',
+response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'название теста1', 'category': 'Химия',
               'about': 'о чем тест1',
               'questions': [
                 {'type': 'ord',
@@ -67,7 +67,7 @@ response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'на
 print(response.json())
 
 
-response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'название теста',
+response = requests.post('http://127.0.0.1:8080/api/tests', json={'title': 'название теста', 'category': 'Химия',
               'about': 'о чем тест',
               'questions': [
                 {'type': 'ord',
