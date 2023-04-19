@@ -11,9 +11,7 @@ app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 # - Обычный личный кабинет со статистикой (Добавить в бд дополнительные колонки со статистикой )
 # - Создание теста
 # - Поиск
-# - Способы сортировки на главной странице
 # - Открытие тестов
-
 
 # Заметки:
 # creating.html категория - required
@@ -22,9 +20,11 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+# Почините это, а то, если в бд нет пользователя user, эта штука работать не будет
 @login_manager.user_loader
 def load_user(user_id):
     user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
+    print(user)
     return User(user)
 
 
@@ -41,7 +41,6 @@ class User(UserMixin):
         return self._data
 
 
-
 @app.route('/')
 def start():
     return redirect('/login')
@@ -49,15 +48,8 @@ def start():
 
 @app.route('/check_data/<_type>', methods=['GET', 'POST'])
 def check_data(_type):
-
     req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
     user = list(filter(lambda x: x['name'] == request.form['username'], req_data))
-
-
-    req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
-    user = list(filter(lambda x: x['name'] == request.form['username'], req_data))
-
-    print(req_data)
 
     if _type == 'login':
         if not user:
@@ -78,7 +70,6 @@ def check_data(_type):
 
         else:
             user_id = requests.post('http://127.0.0.1:8080/api/users', json={'name': request.form['username'],
-
                                                                              'about': '-',
                                                                              'login': request.form['login'],
                                                                              'password': request.form['password']
@@ -116,10 +107,11 @@ def login():
 def welcome():
     req_data = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
     tests = []
-    print(req_data)
+
+    # Наладить тут с данными
     for test in req_data:
         tests.append({'title': test['name'], 'description': test['about'], 'questions': len(test['questions']),
-                      'date': '01.01.02'})
+                      'category': test['category']})
 
     print('success authorization')
 
@@ -141,11 +133,14 @@ def main():
 
 
 # Открывается при нажатии на кнопку "Найти"
-@app.route('/search', methods=['GET', 'POST'])
-def find():
+@app.route('/search/<name>', methods=['GET', 'POST'])
+def find(name):
     print("searching")
 
-    return render_template('searching.html')
+    # Список словарей с подходиящими названиями
+    lst = []
+
+    return render_template('searching.html', lst=lst)
 
 
 # Личный кабинет
@@ -153,14 +148,9 @@ def find():
 def stats():
     print("stats")
 
+    params = {'percent': 40}
 
-    # data = requests.get('http://127.0.0.1:8080/api/users').json()
-
-    data = requests.get('http://127.0.0.1:8080/api/users').json()
-    print(data)
-
-
-    return render_template('stats.html')
+    return render_template('stats.html', **params)
 
 
 # Создание тестов
@@ -169,20 +159,29 @@ def create(_next):
     print("creating")
 
     if _next == "questions":
+        types = [{'id': 1, 'text': 'обычный'},
+                 {'id': 2, 'text': 'выбор правильного ответа'},
+                 {'id': 3, 'text': 'выбор нескольких правильных ответов'}]
 
-        # print(request.form)
-        return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int)
+        return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int, types=types)
 
-    else:
-        # cats = requests.get('http://127.0.0.1:8080/api/categories')
-        cats = [{'id': 1, 'text': 'a'},
-                {'id': 2, 'text': 'b'},
-                {'id': 3, 'text': 'c'}]
-        # print(*requests.get('http://127.0.0.1:8080/api/users').json()['users'])
+    elif _next == "c":
+        cats = [{'id': 1, 'text': 'Химия'},
+                {'id': 2, 'text': 'Физика'},
+                {'id': 3, 'text': 'География'},
+                {'id': 4, 'text': 'Биология'},
+                {'id': 5, 'text': 'Информатика'},
+                {'id': 6, 'text': 'История'},
+                {'id': 7, 'text': 'Алгебра'},
+                {'id': 8, 'text': 'Геометрия'},
+                {'id': 9, 'text': 'Геология'},
+                {'id': 10, 'text': 'Астрономия'},
+                {'id': 11, 'text': 'Информационные технологии'}]
+
         return render_template('creating.html', categories=cats)
 
-        return render_template("creating_question.html")
-
+    elif _next == "thbc":
+        return render_template('test_have_been_created.html')
 
 
 

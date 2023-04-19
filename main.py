@@ -33,8 +33,8 @@ def add_categories():
 
         db_sess.add(cat)
         db_sess.commit()
-
 add_categories()
+
 
 
 def add_option(text, question_id, is_correct):# добавление в базу данных варианта выбора \ ответа
@@ -46,10 +46,10 @@ def add_option(text, question_id, is_correct):# добавление в базу
     db_sess.commit()
 
 
-def add_question(question, answer, test_id, question_type='ord'):# добавление в базу данных вопроса
-    if not question:# ошибка, которая возникает, если в вопросе не передан вопрос
+def add_question(question, answer, test_id, question_type='ord'):  # добавление в базу данных вопроса
+    if not question:  # ошибка, которая возникает, если в вопросе не передан вопрос
         return 'error'
-    if not answer:# ошибка, которая возникает, если в вопросе не передан вопрос
+    if not answer:  # ошибка, которая возникает, если в вопросе не передан вопрос
         return 'error2'
     quest = Question()
     # вопрос считывается по-разному, в зависимости от его типа
@@ -57,29 +57,30 @@ def add_question(question, answer, test_id, question_type='ord'):# добавл�
         quest.question = question
     elif question_type == 'rad' or question_type == 'check':
         quest.question = question[0]
-    else:# если тип передан неверно, выводится соответствующая ошибка
+    else:  # если тип передан неверно, выводится соответствующая ошибка
         return 'error1'
     quest.type = question_type
     quest.test_id = test_id
     db_sess.add(quest)
     db_sess.commit()
 
-    id = db_sess.query(Question).all()[-1].id # получение id переданного вопроса
-    if question_type == 'ord' or question_type == 'rad':# добавление ответа в бд
+    id = db_sess.query(Question).all()[-1].id  # получение id переданного вопроса
+    if question_type == 'ord' or question_type == 'rad':  # добавление ответа в бд
         add_option(answer, id, True)
-    if question_type == 'check' or question_type == 'rad':# добавлеие в бд вариантов ответа\ответов, если их несколько
-        if type(question) != list or len(question) != 2: # проверка правильности структуры переданных вавриантов ответа
+    if question_type == 'check' or question_type == 'rad':  # добавлеие в бд вариантов ответа\ответов, если их несколько
+        if type(question) != list or len(question) != 2:  # проверка правильности структуры переданных вавриантов ответа
             return 'error'
         elif type(question[1]) != list:
             return 'error'
-        for quest in question[1]:# добавление вариантов ответа
+        for quest in question[1]:  # добавление вариантов ответа
             add_option(quest, id, False)
-        if question_type == 'check':# добавление ответов
+        if question_type == 'check':  # добавление ответов
             for text in answer:
                 add_option(text, id, True)
 
 
-def add_test(title, about, questions, user_id, is_private, category_text):# добавление теста в бд
+  
+def add_test(title, about, questions, user_id, is_private, category_text):  # добавление теста в бд
 
     test = Test()
     test.title = title
@@ -91,11 +92,11 @@ def add_test(title, about, questions, user_id, is_private, category_text):# до
     else:
         return 'bad category'
 
-    test.key = random.randint(0, 1000000000) # генерация ключа теста
 
+    test.key = random.randint(0, 1000000000)  # генерация ключа теста
     test.user_id = user_id
     test.is_private = is_private
-    if not questions:# проверка наличия вопросов
+    if not questions:  # проверка наличия вопросов
         return 'questions not passed'
     if not any([any([key in question.keys() for key in ['question', 'answer', 'type']]) for question in questions]):
         # проверка структуры вопросов
@@ -104,7 +105,7 @@ def add_test(title, about, questions, user_id, is_private, category_text):# до
     db_sess.commit()
 
     id = db_sess.query(Test).all()[-1].id
-    for question in questions:# создание вопросов
+    for question in questions:  # создание вопросов
         res = add_question(question['question'], question['answer'], id, question['type'])
         # обработка ошибок
         if res == 'error':
@@ -116,7 +117,7 @@ def add_test(title, about, questions, user_id, is_private, category_text):# до
     return db_sess.query(Test).all()[-1].key
 
 
-def add_user(name, about, login, password):# добавление пользователя
+def add_user(name, about, login, password):  # добавление пользователя
     user = User()
     user.name = name
     user.about = about
@@ -128,18 +129,17 @@ def add_user(name, about, login, password):# добавление пользов
     return db_sess.query(User).all()[-1].id
 
 
-def add_telegram_key(user_id): # добавление телеграм ключа
+def add_telegram_key(user_id):  # добавление телеграм ключа
     key = Telegram_key()
     key.user_id = user_id
-    key.key = random.randint(1000000000000000, 9999999999999999) # генерация ключа
-    key.date = datetime.datetime.now() # сохранение времени создания
+    key.key = random.randint(1000000000000000, 9999999999999999)  # генерация ключа
+    key.date = datetime.datetime.now()  # сохранение времени создания
     db_sess.add(key)
     db_sess.commit()
     return db_sess.query(Telegram_key).all()[-1].key
 
 
-
-def get_question(question):# получение вопросов (происходит по-разному в зависимости от типа)
+def get_question(question):  # получение вопросов (происходит по-разному в зависимости от типа)
     if question.type == 'check':
         result = {'type': question.type,
                   'question': [question.question,
@@ -157,13 +157,12 @@ def get_question(question):# получение вопросов (происхо
     return result
 
 
-def get_test(test_key, all=False):# получение тестов
-    if all: # получение всех тестов
+def get_test(test_key, all=False):  # получение тестов
+    if all:  # получение всех тестов
         tests = db_sess.query(Test)
-    else: # получение теста по ключу
+    else:  # получение теста по ключу
         tests = db_sess.query(Test).filter(Test.key == test_key)
     results = []
-
 
     for test in tests:  # создание ответа
         result = {'name': test.title,
@@ -175,20 +174,20 @@ def get_test(test_key, all=False):# получение тестов
                   'questions': [get_question(question) for question in test.questions]}
         results.append(result)
 
-    if all:# вывод всех тестов
+    if all:  # вывод всех тестов
         return results
-    else:# вывод теста по ключу
+    else:  # вывод теста по ключу
         return results[0]
 
 
-def get_user(id, all=False):# получение пользователя
-    if all:# получение всех пользователей
+def get_user(id, all=False):  # получение пользователя
+    if all:  # получение всех пользователей
         users = db_sess.query(User)
-    else:# получение пользоателя по id
+    else:  # получение пользоателя по id
         users = db_sess.query(User).filter(User.id == id)
     result = []
 
-    for user in users:# создание ответа
+    for user in users:  # создание ответа
         result.append({'id': user.id,
                        'passed_tests': user.num_passed_tests,
                        'name': user.name,
@@ -198,25 +197,25 @@ def get_user(id, all=False):# получение пользователя
                        'password': user.password})
     if all:  # вывод всех тестов
         return result
-    else:# вывод теста по ключу
+    else:  # вывод теста по ключу
         return result[0]
 
 
-def get_user_id_from_telegram_key(key):# получение телеграмм люча
+def get_user_id_from_telegram_key(key):  # получение телеграмм люча
     tele_key = db_sess.query(Telegram_key).filter(Telegram_key.key == key)[0]
-    if (datetime.datetime.now() - tele_key.date).total_seconds() > 600:# вывод соответствующей ошибки, если ключ истёк
+    if (datetime.datetime.now() - tele_key.date).total_seconds() > 600:  # вывод соответствующей ошибки, если ключ истёк
         return 'error'
     return tele_key.user_id
 
 
-def abort_if_test_not_found(test_key):# проверка наличия теста по ключу
+def abort_if_test_not_found(test_key):  # проверка наличия теста по ключу
     test = db_sess.query(Test).filter(Test.key == test_key).first()
     if not test:
         abort(404, message=f"Test {test_key} not found")
 
 
 class TestResource(Resource):
-    def get(self, test_key):# обработчик получения теста по ключу
+    def get(self, test_key):  # обработчик получения теста по ключу
         abort_if_test_not_found(test_key)
         return jsonify(
             {
@@ -225,7 +224,7 @@ class TestResource(Resource):
             }
         )
 
-    def delete(self, test_key):# обработчик удаления теста по ключу
+    def delete(self, test_key):  # обработчик удаления теста по ключу
         abort_if_test_not_found(test_key)
         test = db_sess.query(Test).filter(Test.key == test_key)[0]
         db_sess.delete(test)
@@ -243,7 +242,7 @@ class TestListResource(Resource):
     parser.add_argument('is_private', type=bool)
     parser.add_argument('user_id', type=int)
 
-    def get(self):# обработчик получения всех тестов
+    def get(self):  # обработчик получения всех тестов
         return jsonify(
             {
                 'tests':
@@ -251,7 +250,7 @@ class TestListResource(Resource):
             }
         )
 
-    def post(self):# обработчик добавления теста
+    def post(self):  # обработчик добавления теста
         args = self.parser.parse_args()
         # создание теста
         res = add_test(args['title'],
@@ -270,14 +269,14 @@ class TestListResource(Resource):
         return jsonify({'success': 'OK', 'key': res})
 
 
-def abort_if_user_not_found(user_id):# проверка наличия пользователя по id
+def abort_if_user_not_found(user_id):  # проверка наличия пользователя по id
     user = db_sess.query(User).filter(User.id == user_id).first()
     if not user:
         abort(404, message=f"User {user_id} not found")
 
 
 class UserResource(Resource):
-    def get(self, user_id):# обработчик получения пользователя по id
+    def get(self, user_id):  # обработчик получения пользователя по id
         abort_if_user_not_found(user_id)
         return jsonify(
             {
@@ -285,7 +284,7 @@ class UserResource(Resource):
             }
         )
 
-    def delete(self, user_id):# обработчик удаления пользователя по id
+    def delete(self, user_id):  # обработчик удаления пользователя по id
         abort_if_user_not_found(user_id)
         user = db_sess.query(User).filter(User.id == user_id)[0]
         db_sess.delete(user)
@@ -301,7 +300,7 @@ class UserListResource(Resource):
     parser.add_argument('login', type=str)
     parser.add_argument('password', type=str)
 
-    def get(self):# обработчик получения всех пользователей
+    def get(self):  # обработчик получения всех пользователей
         return jsonify(
             {
                 'users':
@@ -309,24 +308,24 @@ class UserListResource(Resource):
             }
         )
 
-    def post(self):# обработчик добавления пользователя
+    def post(self):  # обработчик добавления пользователя
         args = self.parser.parse_args()
         res = add_user(args['name'], args['about'], args['login'], args['password'])
         return jsonify({'success': 'OK', 'id': res})
 
 
-def abort_if_key_not_found(key):# проверка наличия телеграмм ключа
+def abort_if_key_not_found(key):  # проверка наличия телеграмм ключа
     tele_key = db_sess.query(Telegram_key).filter(Telegram_key.key == key).first()
     if not tele_key:
         abort(404, message=f"key {key} not found")
 
 
 class TelegramKeyResource(Resource):
-    def get(self, key):# обработчик получения id пользователя по телеграм ключу
+    def get(self, key):  # обработчик получения id пользователя по телеграм ключу
         abort_if_key_not_found(key)
         user_id = get_user_id_from_telegram_key(key)
 
-        if user_id == 'error':# вывод ошибки, если ключ истек
+        if user_id == 'error':  # вывод ошибки, если ключ истек
             abort(400, message=f"key {key} is not valid")
 
         return jsonify(
@@ -335,7 +334,7 @@ class TelegramKeyResource(Resource):
             }
         )
 
-    def delete(self, key):# обработчик удаления телеграм ключа
+    def delete(self, key):  # обработчик удаления телеграм ключа
         abort_if_key_not_found(key)
         tele_key = db_sess.query(Telegram_key).filter(Telegram_key.key == key)[0]
         db_sess.delete(tele_key)
@@ -348,9 +347,9 @@ class TelegramKeyListResource(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('user_id', type=str)
 
-    def post(self):# обработчик добавления ключа
+    def post(self):  # обработчик добавления ключа
         args = self.parser.parse_args()
-        abort_if_user_not_found(args['user_id'])# проверка наличия пользователя для которого генерируется ключ
+        abort_if_user_not_found(args['user_id'])  # проверка наличия пользователя для которого генерируется ключ
         res = add_telegram_key(args['user_id'])
         return jsonify({'success': 'OK', 'key': res})
 
@@ -361,6 +360,7 @@ class Test_passed_Resource(Resource):
         user = db_sess.query(User).filter(User.id == user_id)[0]
         user.num_passed_tests = user.num_passed_tests + 1
         return jsonify({'success': 'OK'})
+
 
 api.add_resource(Test_passed_Resource, '/api/passed_tests/<int:user_id>')
 
