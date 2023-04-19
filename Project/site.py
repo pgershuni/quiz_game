@@ -14,6 +14,7 @@ app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 # - Способы сортировки на главной странице
 # - Открытие тестов
 
+
 # Заметки:
 # creating.html категория - required
 
@@ -40,6 +41,7 @@ class User(UserMixin):
         return self._data
 
 
+
 @app.route('/')
 def start():
     return redirect('/login')
@@ -47,8 +49,15 @@ def start():
 
 @app.route('/check_data/<_type>', methods=['GET', 'POST'])
 def check_data(_type):
+
     req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
     user = list(filter(lambda x: x['name'] == request.form['username'], req_data))
+
+
+    req_data = requests.get('http://127.0.0.1:8080/api/users').json()['users']
+    user = list(filter(lambda x: x['name'] == request.form['username'], req_data))
+
+    print(req_data)
 
     if _type == 'login':
         if not user:
@@ -69,11 +78,19 @@ def check_data(_type):
 
         else:
             user_id = requests.post('http://127.0.0.1:8080/api/users', json={'name': request.form['username'],
+
                                                                              'about': '-',
                                                                              'login': request.form['login'],
                                                                              'password': request.form['password']
                                                                              }).json()
             user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
+
+                                                                   'about': '-',
+                                                                   'login': request.form['login'],
+                                                                   'password': request.form['password']
+                                                                   }).json()
+            user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}')['user']
+
             login_user(User(user))
             return redirect('/welcome')
 
@@ -143,7 +160,12 @@ def find():
 def stats():
     print("stats")
 
+
     # data = requests.get('http://127.0.0.1:8080/api/users').json()
+
+    data = requests.get('http://127.0.0.1:8080/api/users').json()
+    print(data)
+
 
     return render_template('stats.html')
 
@@ -154,6 +176,7 @@ def create(_next):
     print("creating")
 
     if _next == "questions":
+
         # print(request.form)
         return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int)
 
@@ -164,6 +187,12 @@ def create(_next):
                 {'id': 3, 'text': 'c'}]
         # print(*requests.get('http://127.0.0.1:8080/api/users').json()['users'])
         return render_template('creating.html', categories=cats)
+
+        return render_template("creating_question.html")
+
+    else:
+        return render_template('creating.html')
+
 
 
 if __name__ == '__main__':

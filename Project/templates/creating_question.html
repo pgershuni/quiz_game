@@ -5,6 +5,7 @@
 {% block body %}
 
     <div class="container">
+
         {% for elem in nums %}
             <div class="row">
                 <h3 class="text-center">Вопрос №{{ int(elem + 1) }}</h3>
@@ -36,6 +37,11 @@
             </div>
             <br><br>
         {% endfor %}
+
+        <div class="row">
+            <h2 class="center-text">Создание вопроса</h2>
+        </div>
+
     </div>
 
 {% endblock %}
