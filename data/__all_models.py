@@ -42,8 +42,8 @@ class User(SqlAlchemyBase):
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     login = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-
-    telegram_key = orm.relationship('Telegram_key', back_populates='user', cascade='all')
+    num_passed_tests = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    telegram_key = orm.relationship('Telegram_key', back_populates='user', uselist=False, cascade='all')
     # tests
 
 
@@ -75,4 +75,3 @@ class Category(SqlAlchemyBase):
                            primary_key=True, autoincrement=True)
     text = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     tests = orm.relationship('Test', back_populates='category')
-

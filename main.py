@@ -34,6 +34,8 @@ def add_categories():
         db_sess.add(cat)
         db_sess.commit()
 
+add_categories()
+
 
 def add_option(text, question_id, is_correct):# добавление в базу данных варианта выбора \ ответа
     opt = Option()
@@ -89,9 +91,6 @@ def add_test(title, about, questions, user_id, is_private, category_text):# до
     else:
         return 'bad category'
 
-
-    test.key = random.randint(0, 1000000000)  # генерация ключа теста
-
     test.key = random.randint(0, 1000000000) # генерация ключа теста
 
     test.user_id = user_id
@@ -121,6 +120,7 @@ def add_user(name, about, login, password):# добавление пользов
     user = User()
     user.name = name
     user.about = about
+    user.num_passed_tests = 0
     user.login = login
     user.password = password
     db_sess.add(user)
@@ -166,9 +166,6 @@ def get_test(test_key, all=False):# получение тестов
 
 
     for test in tests:  # создание ответа
-
-    for test in tests: # создание ответа
-
         result = {'name': test.title,
                   'about': test.about,
                   'category': test.category.text,
@@ -193,21 +190,13 @@ def get_user(id, all=False):# получение пользователя
 
     for user in users:# создание ответа
         result.append({'id': user.id,
-
+                       'passed_tests': user.num_passed_tests,
                        'name': user.name,
                        'about': user.about,
-                       'telegram_key': user.telegram_key,
+                       'telegram_key': user.telegram_key.key,
                        'login': user.login,
                        'password': user.password})
     if all:  # вывод всех тестов
-
-                  'name': user.name,
-                  'about': user.about,
-                  'telegram_key': user.telegram_key,
-                  'login': user.login,
-                  'password': user.password})
-    if all:# вывод всех тестов
-
         return result
     else:# вывод теста по ключу
         return result[0]
@@ -364,6 +353,16 @@ class TelegramKeyListResource(Resource):
         abort_if_user_not_found(args['user_id'])# проверка наличия пользователя для которого генерируется ключ
         res = add_telegram_key(args['user_id'])
         return jsonify({'success': 'OK', 'key': res})
+
+
+class Test_passed_Resource(Resource):
+    def get(self, user_id):
+        abort_if_user_not_found(user_id)
+        user = db_sess.query(User).filter(User.id == user_id)[0]
+        user.num_passed_tests = user.num_passed_tests + 1
+        return jsonify({'success': 'OK'})
+
+api.add_resource(Test_passed_Resource, '/api/passed_tests/<int:user_id>')
 
 # добавление обработчиков для api тестов
 api.add_resource(TestListResource, '/api/tests')
