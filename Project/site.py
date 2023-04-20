@@ -8,19 +8,18 @@ app = Flask('app')
 app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 
 # Доделать:
-# - Обычный личный кабинет со статистикой (Добавить в бд дополнительные колонки со статистикой )
-# - Создание теста
-# - Поиск
+# - Создание теста (динамическое использование)
+# - Поиск по имени
 # - Открытие тестов
+# !!! - при создании теста количество вопросов должно сохраняться в каждой форме
 
 # Заметки:
-# creating.html категория - required
+# - пока в creating-ах стоят затычки с nums
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-# Почините это, а то, если в бд нет пользователя user, эта штука работать не будет
 @login_manager.user_loader
 def load_user(user_id):
     user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
@@ -74,7 +73,7 @@ def check_data(_type):
                                                                              'login': request.form['login'],
                                                                              'password': request.form['password']
                                                                              }).json()['id']
-            print(user_id, requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json())
+            # print(user_id, requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json())
             user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
             login_user(User(user))
             return redirect('/welcome')
@@ -123,9 +122,10 @@ def welcome():
 @app.route('/main', methods=['GET', 'POST'])
 def main():
     params = {
-        "list_of_tests": [{"title": "Первый тест", "description": "Биология", "questions": 3, "date": "29.02.1999"},
-                          {"title": 'Второй тест', "description": "Математика", "questions": 5, "date": "01.01.2021"},
-                          {"title": 'Третий тест', "description": "Кулинария", "questions": 10, "date": "02.03.2023"}]
+        "list_of_tests": [
+            {"title": "Первый тест", "description": "Биология", "questions": 3, "category": "Иван Сусанин"},
+            {"title": 'Второй тест', "description": "Математика", "questions": 5, "category": "Марина"},
+            {"title": 'Третий тест', "description": "Кулинария", "questions": 10, "category": "Биология"}]
     }
 
     print("main page opened")
@@ -133,28 +133,40 @@ def main():
     return render_template("main.html", **params)
 
 
-# Открывается при нажатии на кнопку "Найти"
-@app.route('/search/<name>', methods=['GET', 'POST'])
-def find(name):
+@app.route('/search', methods=['GET', 'POST'])
+def search():
     print("searching")
 
-    # Список словарей с подходиящими названиями
-    lst = []
+    name = request.form['name']
+    print(name)
 
-    return render_template('searching.html', lst=lst)
+    # Список словарей с подходиящими названиями
+    lst = [{"title": "Первый тест", "description": "Биология", "questions": 3, "category": "Иван Сусанин"},
+           {"title": 'Второй тест', "description": "Математика", "questions": 5, "category": "Марина"},
+           {"title": 'Третий тест', "description": "Кулинария", "questions": 10, "category": "Биология"}]
+
+    params = {"lst": lst,
+              "name": name}
+
+    return render_template('searching.html', **params)
 
 
 # Личный кабинет
 @app.route('/profile/stats', methods=['GET', 'POST'])
 def stats():
     print("stats")
+
     params = current_user.get_data()['passed_tests']
+
     if str(params)[-1] == '1':
         message = 'Всего пройдено ' + str(params) + ' тест'
+
     elif str(params)[-1] == '2' or str(params)[-1] == '3' or str(params)[-1] == '4':
         message = 'Всего пройдено ' + str(params) + ' теста'
+
     else:
         message = 'Всего пройдено ' + str(params) + ' тестов'
+
     return render_template('stats.html', mess_with_count=message)
 
 
@@ -164,11 +176,8 @@ def create(_next):
     print("creating")
 
     if _next == "questions":
-        types = [{'id': 1, 'text': 'обычный'},
-                 {'id': 2, 'text': 'выбор правильного ответа'},
-                 {'id': 3, 'text': 'выбор нескольких правильных ответов'}]
 
-        return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int, types=types)
+        return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int)
 
     elif _next == "c":
         cats = [{'id': 1, 'text': 'Химия'},
@@ -185,9 +194,15 @@ def create(_next):
 
         return render_template('creating.html', categories=cats)
 
+    elif _next == "types":
+        types = [{'id': 1, 'text': 'обычный'},
+                 {'id': 2, 'text': 'выбор правильного ответа'},
+                 {'id': 3, 'text': 'выбор нескольких правильных ответов'}]
+
+        return render_template("creating_type.html", types=types, int=int, nums=range(int(request.form['num'])))
+
     elif _next == "thbc":
         return render_template('test_have_been_created.html')
-
 
 
 if __name__ == '__main__':
