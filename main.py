@@ -33,11 +33,12 @@ def add_categories():
 
         db_sess.add(cat)
         db_sess.commit()
+
+
 add_categories()
 
 
-
-def add_option(text, question_id, is_correct):# добавление в базу данных варианта выбора \ ответа
+def add_option(text, question_id, is_correct):  # добавление в базу данных варианта выбора \ ответа
     opt = Option()
     opt.text = text
     opt.question_id = question_id
@@ -79,7 +80,6 @@ def add_question(question, answer, test_id, question_type='ord'):  # добав�
                 add_option(text, id, True)
 
 
-  
 def add_test(title, about, questions, user_id, is_private, category_text):  # добавление теста в бд
 
     test = Test()
@@ -91,7 +91,6 @@ def add_test(title, about, questions, user_id, is_private, category_text):  # д
         test.category = category
     else:
         return 'bad category'
-
 
     test.key = random.randint(0, 1000000000)  # генерация ключа теста
     test.user_id = user_id

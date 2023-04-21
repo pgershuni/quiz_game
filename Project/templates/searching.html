@@ -3,5 +3,21 @@
 {% block head %}<title>Поиск</title>{% endblock %}
 
 {% block body %}
-
+    <div class="container">
+        <div class="row">
+            <div class="text-center"><h2>Результаты по запросу "{{ name }}":</h2></div>
+        </div>
+        <div class="list-group col-md-9 mx-auto">
+            {% for test in lst %}
+                  <a href="#" class="list-group-item list-group-item-action cell">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1">{{ test["title"] }}</h5>
+                      <small>{{ test["category"] }}</small>
+                    </div>
+                    <p class="mb-1">Описание: {{ test["description"] }}</p>
+                    <small>Количество вопросов: {{ test["questions"] }}</small>
+                  </a>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
