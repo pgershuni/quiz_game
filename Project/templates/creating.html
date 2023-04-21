@@ -3,60 +3,45 @@
 {% block head %}<title>Создание</title>{% endblock %}
 
 {% block body %}
-    <form method="post" action="/creating/types" class="container">
+    <form method="post" class="container">
         <div class="row">
             <div class="col text-center"><h2>Создание теста</h2></div>
         </div>
         <br><br><br>
+        {{ form.csrf_token() }}
         <div class="row">
             <div class="col-2"></div>
-            <div class="col-md-4">Название:</div>
-            <div class="col-md-4"><input type="text" class="form-control" placeholder="Введите" name="title" required minlength="1" maxlength="48"></div>
+            <div class="col-md-4">{{ form.title.label }}</div>
+            <div class="col-md-4">{{ form.title() }}</div>
             <div class="col-2"></div>
         </div>
-        <br>
         <div class="row">
             <div class="col-2"></div>
-            <div class="col-md-4">Категория:</div>
-            <div class="col-md-4">
-                <select class="form-select" aria-label="Default select example" name="category">
-                    {% for cat in categories %}
-                        <option value="{{ cat['id'] }}">{{ cat["text"] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+            <div class="col-md-4">{{ form.category.label }}</div>
+            <div class="col-md-4">{{ form.category() }}</div>
             <div class="col-2"></div>
         </div>
-        <br>
         <div class="row">
             <div class="col-2"></div>
-            <div class="col-md-4">Количество вопросов:</div>
-            <div class="col-md-4"><input type="number" class="form-control" placeholder="Введите" name="num" required></div>
+            <div class="col-md-4">{{ form.count.label() }}</div>
+            <div class="col-md-4">{{ form.count() }}</div>
             <div class="col-2"></div>
         </div>
-        <br>
         <div class="row">
             <div class="col-2"></div>
-            <div class="col-md-4">Описание:</div>
-            <div class="col-md-4"><input type="text" class="form-control" placeholder="Введите" name="desc"></div>
+            <div class="col-md-4">{{ form.description.label() }}</div>
+            <div class="col-md-4">{{ form.description() }}</div>
             <div class="col-2"></div>
         </div>
-        <br>
         <div class="row">
             <div class="col-2"></div>
-            <div class="col-md-4">Доступ:</div>
-            <div class="col-md-4">
-                <select class="form-select" aria-label="Default select example" name="type">
-                    <option value="1">Открытый</option>
-                    <option value="2">Закрытый</option>
-                </select>
-            </div>
+            <div class="col-md-4">{{ form.type.label() }}</div>
+            <div class="col-md-4">{{ form.type() }}</div>
             <div class="col-2"></div>
         </div>
-        <br>
         <div class="row">
             <div class="col-3"></div>
-            <div class="col-md-6"><button type="submit" class="btn-primary btn w-100">Следующий шаг</button></div>
+            <div class="col-md-6">{{ form.submit() }}</div>
             <div class="col-3"></div>
         </div>
     </form>

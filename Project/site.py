@@ -1,8 +1,7 @@
 import requests
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
-from login import LoginForm
-from registration import RegForm
+from forms import LoginForm, RegForm, Create, CreateType, CreateQuestion
 
 app = Flask('app')
 app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
@@ -138,7 +137,7 @@ def search():
     print("searching")
 
     name = request.form['name']
-    print(name)
+    # print(name)
 
     # Список словарей с подходиящими названиями
     lst = [{"title": "Первый тест", "description": "Биология", "questions": 3, "category": "Иван Сусанин"},
@@ -170,39 +169,83 @@ def stats():
     return render_template('stats.html', mess_with_count=message)
 
 
+@app.route('/creating/question', methods=['GET', 'POST'])
+def create_question():
+    form = CreateQuestion()
+
+    return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int, form=form)
+
+
+@app.route('/creating/types', methods=['GET', 'POST'])
+def create_type():
+    form = CreateType()
+
+    types = [{'id': 1, 'text': 'обычный'},
+             {'id': 2, 'text': 'выбор правильного ответа'},
+             {'id': 3, 'text': 'выбор нескольких правильных ответов'}]
+
+    # request.args['title']
+    for i in range(int(request.args['count'])):
+        form.type.append_entry()
+
+    print(form.type)
+
+    params = {
+        'types': types,
+        'int': int,
+        'form': form,
+        'count': range(int(request.args['count']))
+    }
+
+    # for field in form.type:
+        # field.data
+
+    # Это в validate_on_submit()
+
+    if form.validate_on_submit():
+        pass
+
+    return render_template("creating_type.html", **params)
+
+
+@app.route('/creating/thbc', methods=['GET', 'POST'])
+def create_thbc():
+    return render_template('test_have_been_created.html')
+
+
 # Создание тестов
-@app.route('/creating/<_next>', methods=['GET', 'POST'])
-def create(_next):
+@app.route('/creating', methods=['GET', 'POST'])
+def create():
     print("creating")
 
-    if _next == "questions":
+    form = Create()
 
-        return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int)
+    cats = ['Химия',
+            'Физика',
+            'География',
+            'Биология',
+            {'id': 5, 'text': 'Информатика'},
+            {'id': 6, 'text': 'История'},
+            {'id': 7, 'text': 'Алгебра'},
+            {'id': 8, 'text': 'Геометрия'},
+            {'id': 9, 'text': 'Геология'},
+            {'id': 10, 'text': 'Астрономия'},
+            {'id': 11, 'text': 'Информационные технологии'}]
 
-    elif _next == "c":
-        cats = [{'id': 1, 'text': 'Химия'},
-                {'id': 2, 'text': 'Физика'},
-                {'id': 3, 'text': 'География'},
-                {'id': 4, 'text': 'Биология'},
-                {'id': 5, 'text': 'Информатика'},
-                {'id': 6, 'text': 'История'},
-                {'id': 7, 'text': 'Алгебра'},
-                {'id': 8, 'text': 'Геометрия'},
-                {'id': 9, 'text': 'Геология'},
-                {'id': 10, 'text': 'Астрономия'},
-                {'id': 11, 'text': 'Информационные технологии'}]
+    form.category.choices = cats
+    form.type.choices = ['Открытый', 'Закрытый']
 
-        return render_template('creating.html', categories=cats)
+    if form.validate_on_submit():
+        params = {'title': form.title.data,
+                  'category': form.category.data,
+                  'count': form.count.data,
+                  'description': form.description.data,
+                  'type': form.description.data}
 
-    elif _next == "types":
-        types = [{'id': 1, 'text': 'обычный'},
-                 {'id': 2, 'text': 'выбор правильного ответа'},
-                 {'id': 3, 'text': 'выбор нескольких правильных ответов'}]
+        print('/creating/types?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
+        return redirect('/creating/types?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
 
-        return render_template("creating_type.html", types=types, int=int, nums=range(int(request.form['num'])))
-
-    elif _next == "thbc":
-        return render_template('test_have_been_created.html')
+    return render_template('creating.html', form=form)
 
 
 if __name__ == '__main__':

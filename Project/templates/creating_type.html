@@ -5,32 +5,22 @@
 {% block body %}
 
     <div class="container">
-        <form method="post" action="/creating/questions">
+        <form method="post">
+            {{ form.csrf_token() }}
             <div class="row">
                 <div class="col-2"></div>
-                <div class="col-md-4">Количество вопросов:</div>
-                <div class="col-md-4"><input type="number" class="form-control" placeholder="Введите" name="num" required></div>
+                <div class="col-md-4"><</div>
+                <div class="col-md-4"></div>
                 <div class="col-2"></div>
             </div>
             <br><br>
-            {% for elem in nums %}
-                <div class="row">
-                    <h3 class="text-center">Вопрос №{{ int(elem + 1) }}</h3>
-                </div>
-                <br>
+            {% for elem in form.type %}
                 <div class="row">
                     <div class="col-2"></div>
-                    <div class="col-md-4">Тип вопроса:</div>
-                    <div class="col-md-4">
-                        <select class="form-select" aria-label="Default select example">
-                            {% for type in types %}
-                                <option value="{{ type['id'] }}">{{ type["text"] }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                    <div class="col-md-4">{{ elem.label }}{{ loop.index }}</div>
+                    <div class="col-md-4">{{ elem() }}</div>
                     <div class="col-2"></div>
                 </div>
-                <br>
             {% endfor %}
             <br><br>
             <div class="row">
