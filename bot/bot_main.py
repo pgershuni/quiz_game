@@ -8,11 +8,23 @@ logining = False
 tele_token = '5522035331:AAEgdpuFeH4TvobyHNr6vW7YaJdfRQKO90w'
 
 
+def get_users():
+    with open('users.txt', 'r') as f:
+        lines = f.readlines()
+    users = {}
+    for line in lines:
+        users[int(line.split(':')[0])] = int(line.split(':')[1])
+    return users
+
+
 async def finish_test(user_id, message):
     global checkbox_options
     result = passable_tests[user_id]['correctly_answered_questions'] / len(passable_tests[user_id]['test']['questions'])
     await message.reply_html(f"ваш процент прохождения теста: {str(result * 100)[:5]}%")
     del passable_tests[user_id]
+    if user_id in get_users().keys() and result >= 0.8:
+        response = requests.get(f'http://127.0.0.1:8080/api/passed_tests/{get_users()[user_id]}')
+        print(response)
     checkbox_options = []
 
 
@@ -63,9 +75,11 @@ async def check_answer(answer, message, user_id):
 
 
 async def user_response_handler(update, context):
+    global logining
     if update.message.from_user.id in passable_tests.keys():
         await check_answer(update.message.text, update.message, update.message.from_user.id)
     if logining:
+        logining = False
         user_id = requests.get(f'http://127.0.0.1:8080/api/telegram_keys/{update.message.text}')
         if str(user_id) == '<Response [404]>':
             await update.message.reply_text('Ключ не найден.')
@@ -95,7 +109,7 @@ async def start(update, context):
         del passable_tests[update.message.from_user.id]
 
     reply_keyboard = [[InlineKeyboardButton(text='показать все тесты',
-                                            callback_data=f'get_all_tests;{update.message.from_user.id}')],
+                                            callback_data=f'get_all_tests;{update.message.from_user.id};0')],
                       [InlineKeyboardButton(text='войти', callback_data=f'login')]]
     markup = InlineKeyboardMarkup(reply_keyboard)
     await update.message.reply_html('Здравсвуйте! Выберите действие.', reply_markup=markup)
@@ -104,13 +118,25 @@ async def start(update, context):
 async def callbacks_handler(update, context):
     global checkbox_options, logining
     if 'get_all_tests' in update.callback_query.data:
+        user_id = int(update.callback_query.data.split(";")[1])
+
+        if user_id not in get_users().keys() and not int(update.callback_query.data.split(";")[2]):
+            reply_keyboard = [
+                [InlineKeyboardButton(text='проходить анонимно', callback_data=f'get_all_tests;{user_id};1')],
+                [InlineKeyboardButton(text='войти', callback_data=f'login')]
+            ]
+            markup = InlineKeyboardMarkup(reply_keyboard)
+            await update.callback_query.message.reply_text('вы не авторизовались', reply_markup=markup)
+            return
+
         tests = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
         for test in tests:
             message = f'''{test["name"].upper()} 
 тема: {test["category"]}    количество вопросов: {len(test["questions"])} 
 {test["about"]}'''
             reply_keyboard = [[InlineKeyboardButton(
-                text='пройти', callback_data=f'take_test;{test["key"]};{update.callback_query.data.split(";")[1]}')]]
+                text='пройти',
+                callback_data=f'take_test;{test["key"]};{user_id}')]]
             markup = InlineKeyboardMarkup(reply_keyboard)
             await update.callback_query.message.reply_text(message, reply_markup=markup)
     elif 'take_test' in update.callback_query.data:
@@ -152,7 +178,7 @@ async def callbacks_handler(update, context):
     elif 'logout' in update.callback_query.data:
         with open('users.txt', 'r') as f:
             lines = f.readlines()
-        lines = [line for line in lines if line.split(':') != update.callback_query.data.split(";")[1]]
+        lines = [line for line in lines if line.split(':')[0] != update.callback_query.data.split(";")[1]]
         with open('users.txt', 'w') as f:
             f.writelines(lines)
         await update.callback_query.message.reply_text(f'вы вышли')

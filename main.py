@@ -358,6 +358,7 @@ class Test_passed_Resource(Resource):
         abort_if_user_not_found(user_id)
         user = db_sess.query(User).filter(User.id == user_id)[0]
         user.num_passed_tests = user.num_passed_tests + 1
+        db_sess.commit()
         return jsonify({'success': 'OK'})
 
 
