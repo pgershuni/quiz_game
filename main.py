@@ -207,6 +207,14 @@ def get_user_id_from_telegram_key(key):  # получение телеграмм
     return tele_key.user_id
 
 
+def get_categories():
+    result = []
+    categories = db_sess.query(Category)
+    for category in categories:
+        result.append({'text': category.text})
+    return result
+
+
 def abort_if_test_not_found(test_key):  # проверка наличия теста по ключу
     test = db_sess.query(Test).filter(Test.key == test_key).first()
     if not test:
@@ -362,7 +370,18 @@ class Test_passed_Resource(Resource):
         return jsonify({'success': 'OK'})
 
 
+class Categories_List_Resourse(Resource):
+    def get(self):  # обработчик получения всех пользователей
+        return jsonify(
+            {
+                'categories':
+                    get_categories()
+            }
+        )
+
+
 api.add_resource(Test_passed_Resource, '/api/passed_tests/<int:user_id>')
+api.add_resource(Categories_List_Resourse, '/api/categories/')
 
 # добавление обработчиков для api тестов
 api.add_resource(TestListResource, '/api/tests')
