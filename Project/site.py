@@ -1,7 +1,8 @@
 import requests
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
-from forms import LoginForm, RegForm, Create, CreateType, CreateQuestion
+from forms import LoginForm, RegForm, Create, CreateType, CreateQuestionCommon, CreateQuestionCheckbox, \
+    CreateQuestionRadio, CreateQuestionSubmit
 
 app = Flask('app')
 app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
@@ -22,7 +23,7 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(user_id):
     user = requests.get(f'http://127.0.0.1:8080/api/users/{user_id}').json()['user']
-    print(user)
+    # print(user)
     return User(user)
 
 
@@ -169,26 +170,33 @@ def stats():
     return render_template('stats.html', mess_with_count=message)
 
 
-@app.route('/creating/question', methods=['GET', 'POST'])
-def create_question():
-    form = CreateQuestion()
+@app.route('/creating', methods=['GET', 'POST'])
+def create():
+    print("creating")
 
-    return render_template("creating_question.html", nums=range(int(request.form['num'])), int=int, form=form)
+    form = Create()
+
+    if form.validate_on_submit():
+        params = {'title': form.title.data,
+                  'category': form.category.data,
+                  'count': form.count.data,
+                  'description': form.description.data,
+                  'type': form.type.data}
+
+        # print('/creating/types?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
+        return redirect('/creating/types?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
+
+    return render_template('creating.html', form=form)
 
 
 @app.route('/creating/types', methods=['GET', 'POST'])
 def create_type():
+    print('creating type')
     form = CreateType()
 
     types = [{'id': 1, 'text': 'обычный'},
              {'id': 2, 'text': 'выбор правильного ответа'},
              {'id': 3, 'text': 'выбор нескольких правильных ответов'}]
-
-    # request.args['title']
-    for i in range(int(request.args['count'])):
-        form.type.append_entry()
-
-    print(form.type)
 
     params = {
         'types': types,
@@ -198,54 +206,60 @@ def create_type():
     }
 
     # for field in form.type:
-        # field.data
+    # field.data
 
     # Это в validate_on_submit()
 
     if form.validate_on_submit():
-        pass
+        params = {
+            'count': range(int(request.args['count'])),
+            'types': [elem.data for elem in form.type],
+            'title': request.args['title'],
+            'category': request.args['category'],
+            'description': request.args['description'],
+            'type': request.args['type']
+        }
+
+        # print('/creating/question?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
+        return redirect('/creating/question?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
+
+    for i in range(int(request.args['count'])):
+        form.type.append_entry()
 
     return render_template("creating_type.html", **params)
 
 
+@app.route('/creating/question', methods=['GET', 'POST'])
+def create_question():
+    print('creating questions')
+    form_common = CreateQuestionCommon()
+    form_radio = CreateQuestionRadio()
+    form_checkbox = CreateQuestionCheckbox()
+    form_submit = CreateQuestionSubmit()
+
+    types = request.args['types'][1:-1].replace("'", "").split(', ')
+
+    params = {
+        'types': types,
+        'int': int,
+        'form_common': form_common,
+        'form_radio': form_radio,
+        'form_checkbox': form_checkbox,
+        'form_submit': form_submit
+    }
+
+    # Здесь нужно все заносить в бд
+    if form_submit.validate_on_submit():
+        return redirect('/creating/thbc')
+
+    return render_template("creating_question.html", **params)
+
+
 @app.route('/creating/thbc', methods=['GET', 'POST'])
 def create_thbc():
+    print('test have been created')
+
     return render_template('test_have_been_created.html')
-
-
-# Создание тестов
-@app.route('/creating', methods=['GET', 'POST'])
-def create():
-    print("creating")
-
-    form = Create()
-
-    cats = ['Химия',
-            'Физика',
-            'География',
-            'Биология',
-            {'id': 5, 'text': 'Информатика'},
-            {'id': 6, 'text': 'История'},
-            {'id': 7, 'text': 'Алгебра'},
-            {'id': 8, 'text': 'Геометрия'},
-            {'id': 9, 'text': 'Геология'},
-            {'id': 10, 'text': 'Астрономия'},
-            {'id': 11, 'text': 'Информационные технологии'}]
-
-    form.category.choices = cats
-    form.type.choices = ['Открытый', 'Закрытый']
-
-    if form.validate_on_submit():
-        params = {'title': form.title.data,
-                  'category': form.category.data,
-                  'count': form.count.data,
-                  'description': form.description.data,
-                  'type': form.description.data}
-
-        print('/creating/types?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
-        return redirect('/creating/types?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
-
-    return render_template('creating.html', form=form)
 
 
 if __name__ == '__main__':

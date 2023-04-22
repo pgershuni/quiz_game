@@ -12,36 +12,41 @@
         <div class="row">
             <div class="col-2"></div>
             <div class="col-md-4">{{ form.title.label }}</div>
-            <div class="col-md-4">{{ form.title() }}</div>
+            <div class="col-md-4">{{ form.title(class="form-control") }}</div>
             <div class="col-2"></div>
         </div>
+        <br>
         <div class="row">
             <div class="col-2"></div>
             <div class="col-md-4">{{ form.category.label }}</div>
-            <div class="col-md-4">{{ form.category() }}</div>
+            <div class="col-md-4">{{ form.category(class="form-select") }}</div>
             <div class="col-2"></div>
         </div>
+        <br>
         <div class="row">
             <div class="col-2"></div>
             <div class="col-md-4">{{ form.count.label() }}</div>
-            <div class="col-md-4">{{ form.count() }}</div>
+            <div class="col-md-4">{{ form.count(class="form-select") }}</div>
             <div class="col-2"></div>
         </div>
+        <br>
         <div class="row">
             <div class="col-2"></div>
             <div class="col-md-4">{{ form.description.label() }}</div>
-            <div class="col-md-4">{{ form.description() }}</div>
+            <div class="col-md-4">{{ form.description(class="form-control") }}</div>
             <div class="col-2"></div>
         </div>
+        <br>
         <div class="row">
             <div class="col-2"></div>
             <div class="col-md-4">{{ form.type.label() }}</div>
-            <div class="col-md-4">{{ form.type() }}</div>
+            <div class="col-md-4">{{ form.type(class="form-select") }}</div>
             <div class="col-2"></div>
         </div>
+        <br>
         <div class="row">
             <div class="col-3"></div>
-            <div class="col-md-6">{{ form.submit() }}</div>
+            <div class="col-md-6">{{ form.submit(class="btn-primary btn w-100") }}</div>
             <div class="col-3"></div>
         </div>
     </form>

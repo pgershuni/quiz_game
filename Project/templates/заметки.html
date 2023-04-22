@@ -83,3 +83,43 @@ creating
 
 
 creating_type
+
+creating_question
+{% extends "base.html" %}
+
+{% block head %}<title>Создание вопроса</title>{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+        <form method="post">
+            {% for elem in nums %}
+                <div class="row">
+                    <h3 class="text-center">Вопрос №{{ int(elem + 1) }}</h3>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-2"></div>
+                    <div class="col-md-4">Условие:</div>
+                    <div class="col-md-4"><input type="text" class="form-control" placeholder="Введите"></div>
+                    <div class="col-2"></div>
+                </div>
+                <div class="row">
+                    <div class="col-2"></div>
+                    <div class="col-md-4">Правильный ответ:</div>
+                    <div class="col-md-4"><input type="text" class="form-control" placeholder="Введите"></div>
+                    <div class="col-2"></div>
+                </div>
+                <br><br>
+            {% endfor %}
+            <div class="row">
+                <div class="col-4"></div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Создать тест</button>
+                </div>
+                <div class="col-4"></div>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

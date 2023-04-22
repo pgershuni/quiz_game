@@ -4,35 +4,28 @@
 
 {% block body %}
 
-    <div class="container">
-        <form method="post">
-            {% for elem in nums %}
-                <div class="row">
-                    <h3 class="text-center">Вопрос №{{ int(elem + 1) }}</h3>
-                </div>
-                <br>
-                <div class="row">
-                    <div class="col-2"></div>
-                    <div class="col-md-4">Условие:</div>
-                    <div class="col-md-4"><input type="text" class="form-control" placeholder="Введите"></div>
-                    <div class="col-2"></div>
-                </div>
-                <div class="row">
-                    <div class="col-2"></div>
-                    <div class="col-md-4">Правильный ответ:</div>
-                    <div class="col-md-4"><input type="text" class="form-control" placeholder="Введите"></div>
-                    <div class="col-2"></div>
-                </div>
-                <br><br>
-            {% endfor %}
-            <div class="row">
-                <div class="col-4"></div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary w-100">Создать тест</button>
-                </div>
-                <div class="col-4"></div>
-            </div>
-        </form>
-    </div>
+    <form method="post" class="container">
+
+        {{ form_common.csrf_token() }}
+        {{ form_radio.csrf_token() }}
+        {{ form_checkbox.csrf_token() }}
+        {{ form_submit.csrf_token() }}
+
+        {% for type in types %}
+                {% if type == "обычный" %}
+                    {% for elem in form_common.common %}
+                        {{ elem.label }}{{ elem() }}
+                    {% endfor %}
+                {% elif type == "выбор правильного ответа" %}
+                    выбор ответа
+                {% elif type == "выбор нескольких правильных ответов" %}
+                    выбор нескольких
+                {% endif %}
+        {% endfor %}
+
+        <div class="row">
+            <div class="col">{{ form_submit.submit(class="btn btn-primary w-100") }}</div>
+        </div>
+    </form>
 
 {% endblock %}
