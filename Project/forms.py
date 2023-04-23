@@ -70,16 +70,16 @@ class CreateQuestionSubmit(FlaskForm):
 
 
 class OpenCommon(FlaskForm):
-    pass
+    answer = StringField('Ответ', validators=[DataRequired()])
 
 
 class OpenRadio(FlaskForm):
-    pass
+    radio = RadioField(validators=[DataRequired()])
 
 
 class OpenCheckbox(FlaskForm):
-    pass
+    checkbox = SelectMultipleField(validators=[DataRequired()])
 
 
-class Open(FlaskForm):
-    pass
+class OpenSubmit(FlaskForm):
+    submit = SubmitField('Ответить')

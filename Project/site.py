@@ -2,7 +2,7 @@ import requests
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user, login_required
 from forms import LoginForm, RegForm, Create, CreateType, CreateQuestionCommon, CreateQuestionCheckbox, \
-    CreateQuestionRadio, CreateQuestionSubmit, Open
+    CreateQuestionRadio, CreateQuestionSubmit, OpenCommon, OpenRadio, OpenCheckbox, OpenSubmit
 
 app = Flask('app')
 app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
@@ -285,20 +285,32 @@ def create_thbc():
 @app.route('/test_open/<key>/<question_index>', methods=['GET', 'POST'])
 @login_required
 def test_open(key, question_index):
-    questions = requests.get(f'http://127.0.0.1:8080/api/tests/{key}').json()['test']['questions']
+    test = requests.get(f'http://127.0.0.1:8080/api/tests/{key}').json()['test']
+    questions = test['questions']
 
     print(f'test {key} have been opened')
 
-    form = Open()
+    form_common = OpenCommon()
+    form_radio = OpenRadio()
+    form_checkbox = OpenCheckbox()
+    form_submit = OpenSubmit()
+
+    # Тут же проверять ответ
+    if form_submit.validate_on_submit():
+        if question_index == len(questions):
+            return render_template('/main')
+
+        else:
+            return redirect(f"/test_open/{key}/{int(question_index) + 1}")
 
     params = {
-        'title': 'test',
-        'question': questions[int(question_index)]
+        'title': test['name'],
+        'question': questions[int(question_index)],
+        'form_common': form_common,
+        'form_radio': form_radio,
+        'form_checkbox': form_checkbox,
+        'form_submit': form_submit
     }
-
-    # Если True - перенос на адрес с question_index + 1, пока он != len(questions) - 1
-    if form.validate_on_submit():
-        pass
 
     return render_template("test_open.html", **params)
 
