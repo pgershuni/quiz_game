@@ -291,6 +291,10 @@ def create_thbc():
 @app.route('/test_open/<key>/<question_index>', methods=['GET', 'POST'])
 @login_required
 def test_open(key, question_index):
+
+    req_data = requests.get('http://127.0.0.1:8080/api/questions').json()['questions']
+    questions = list(filter(lambda x: x['test_id'] == request.form['key'], req_data))
+
     print(f'test {key} have been opened')
 
     form = Open()
