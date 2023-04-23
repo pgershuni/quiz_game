@@ -12,19 +12,65 @@
         {{ form_submit.csrf_token() }}
 
         {% for type in types %}
+            <div class="row">
+                <div class="col-4"></div>
+                <div class="col-md-4 text-center"><h4>Вопрос №{{ loop.index }}</h4></div>
+                <div class="col-4"></div>
+            </div>
+            <div class="row">
                 {% if type == "обычный" %}
                     {% for elem in form_common.common %}
-                        {{ elem.label }}{{ elem() }}
+                        <div class="row">
+                            <div class="col-2"></div>
+                            <div class="col-md-4">{{ elem.label }}</div>
+                            <div class="col-md-4">{{ elem(class="form-control") }}</div>
+                            <div class="col-2"></div>
+                        </div>
                     {% endfor %}
+                    <div class="row">
+                        <div class="col-2"></div>
+                        <div class="col-md-4">{{ form_common.true_answer.label }}</div>
+                        <div class="col-md-4">{{ form_common.true_answer(class="form-control") }}</div>
+                        <div class="col-2"></div>
+                    </div>
                 {% elif type == "выбор правильного ответа" %}
-                    выбор ответа
+                    {% for elem in form_radio.radio %}
+                        <div class="row">
+                            <div class="col-2"></div>
+                            <div class="col-md-4">{{ elem.label}}</div>
+                            <div class="col-md-4">{{ elem(class="form-control") }}</div>
+                            <div class="col-2"></div>
+                        </div>
+                    {% endfor %}
+                    <div class="row">
+                        <div class="col-2"></div>
+                        <div class="col-md-4">{{ form_radio.true_answer.label }}</div>
+                        <div class="col-md-4">{{ form_radio.true_answer(class="form-control") }}</div>
+                        <div class="col-2"></div>
+                    </div>
                 {% elif type == "выбор нескольких правильных ответов" %}
-                    выбор нескольких
+                    {% for elem in form_checkbox.checkbox %}
+                        <div class="row">
+                            <div class="col-2"></div>
+                            <div class="col-md-4">{{ elem.label}}</div>
+                            <div class="col-md-4">{{ elem(class="form-control") }}</div>
+                            <div class="col-2"></div>
+                        </div>
+                    {% endfor %}
+                    <div class="row">
+                        <div class="col-2"></div>
+                        <div class="col-md-4">{{ form_checkbox.true_answer.label }}</div>
+                        <div class="col-md-4">{{ form_checkbox.true_answer(class="form-control") }}</div>
+                        <div class="col-2"></div>
+                    </div>
                 {% endif %}
+            </div>
+            <br><br>
         {% endfor %}
-
         <div class="row">
-            <div class="col">{{ form_submit.submit(class="btn btn-primary w-100") }}</div>
+            <div class="col-4"></div>
+            <div class="col-md-4">{{ form_submit.submit(class="btn btn-primary w-100") }}</div>
+            <div class="col-4"></div>
         </div>
     </form>
 

@@ -51,23 +51,35 @@ class CreateQuestion(FlaskForm):
 
 
 class CreateQuestionCommon(FlaskForm):
-    common = FieldList(StringField('Условие', validators=[DataRequired()]),
-                       StringField('Правильный ответ', validators=[DataRequired()]))
+    common = FieldList(StringField('Условие', validators=[DataRequired()]))
+    true_answer = StringField('Правильный ответ', validators=[DataRequired()])
 
 
 class CreateQuestionRadio(FlaskForm):
-    radio = FieldList(StringField('Вариант 1', validators=[DataRequired()]),
-                      StringField('Вариант 2', validators=[DataRequired()]),
-                      StringField('Вариант 3', validators=[DataRequired()]),
-                      StringField('Правильный ответ', validators=[DataRequired()]))
+    radio = FieldList(StringField('Вариант', validators=[DataRequired()]))
+    true_answer = StringField('Правильный вариант', validators=[DataRequired()])
 
 
 class CreateQuestionCheckbox(FlaskForm):
-    checkbox = FieldList(StringField('Вариант 1', validators=[DataRequired()]),
-                         StringField('Вариант 2', validators=[DataRequired()]),
-                         StringField('Вариант 3', validators=[DataRequired()]),
-                         StringField('Правильный ответ', validators=[DataRequired()]))
+    checkbox = FieldList(StringField('Вариант', validators=[DataRequired()]))
+    true_answer = StringField('Правильный вариант', validators=[DataRequired()])
 
 
 class CreateQuestionSubmit(FlaskForm):
     submit = SubmitField('Создать тест')
+
+
+class OpenCommon(FlaskForm):
+    pass
+
+
+class OpenRadio(FlaskForm):
+    pass
+
+
+class OpenCheckbox(FlaskForm):
+    pass
+
+
+class Open(FlaskForm):
+    pass

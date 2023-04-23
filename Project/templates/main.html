@@ -8,7 +8,7 @@
         <div class="col-md-9 mx-auto">
             <div class="list-group">
                 {% for test in list_of_tests %}
-                      <a href="#" class="list-group-item list-group-item-action cell">
+                      <a href="test_open/{{ test['key'] }}" class="list-group-item list-group-item-action cell">
                         <div class="d-flex w-100 justify-content-between">
                           <h5 class="mb-1">{{ test["title"] }}</h5>
                           <small>{{ test["category"] }}</small>

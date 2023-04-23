@@ -8,23 +8,24 @@
         {{ form.csrf_token() }}
         <div class="row">
             <div class="col-4"></div>
-            <div class="col-md-4 text-center"><h2>Выбор типа</h2></div>
+            <div class="col-md-4 text-center"><h1>Выбор типа</h1></div>
             <div class="col-4"></div>
         </div>
         <br><br>
         {% for elem in form.type %}
             <div class="row">
-                <div class="col text-center">{{ loop.index }}</div>
+                <div class="col text-center"><h5>Тип вопроса №{{ loop.index }}</h5></div>
             </div>
-            <br>
+            <br><br>
             <div class="row">
                 <div class="col-2"></div>
                 <div class="col-md-4">{{ elem.label }}</div>
                 <div class="col-md-4">{{ elem(class="form-select") }}</div>
                 <div class="col-2"></div>
             </div>
+            <br>
         {% endfor %}
-        <br><br>
+        <br>
         <div class="row">
             <div class="col-3"></div>
             <div class="col-md-6">{{ form.submit(class="btn-primary btn w-100") }}</div>
