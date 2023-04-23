@@ -8,13 +8,8 @@ app = Flask('app')
 app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 
 # Доделать:
-# - Создание теста (динамическое использование)
 # - Поиск по имени
 # - Открытие тестов
-# !!! - при создании теста количество вопросов должно сохраняться в каждой форме
-
-# Заметки:
-# - пока в creating-ах стоят затычки с nums
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -136,7 +131,7 @@ def main():
         "list_of_tests": [
             {"title": "Первый тест", "description": "Биология", "questions": 3, "category": "Иван Сусанин",
              'key': '469456209'},
-            {"title": 'Второй тест', "description": "Математика", "questions": 5, "category": "Марина"},
+            {"title": 'Второй тест', "description": "Математика", "questions": 5, "category": "Марина", 'key': '12321'},
             {"title": 'Третий тест', "description": "Кулинария", "questions": 10, "category": "Биология"}]
     }
 
@@ -151,7 +146,6 @@ def search():
     print("searching")
 
     name = request.form['name']
-    # print(name)
 
     # Список словарей с подходиящими названиями
     lst = [{"title": "Первый тест", "description": "Биология", "questions": 3, "category": "Иван Сусанин"},
@@ -291,55 +285,15 @@ def create_thbc():
 @app.route('/test_open/<key>/<question_index>', methods=['GET', 'POST'])
 @login_required
 def test_open(key, question_index):
-
-    req_data = requests.get('http://127.0.0.1:8080/api/questions').json()['questions']
-    questions = list(filter(lambda x: x['test_id'] == request.form['key'], req_data))
+    questions = requests.get(f'http://127.0.0.1:8080/api/tests/{key}').json()['test']['questions']
 
     print(f'test {key} have been opened')
 
     form = Open()
 
-    # test = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
-
-    questions = [
-        {
-            "answer": "ответ",
-            "question": "вопрос",
-            "type": "ord"
-        },
-        {
-            "answer": "правильный вариант",
-            "question": [
-                "сам вопрос",
-                [
-                    "вариант1",
-                    "правильный вариант",
-                    "варианты2"
-                ]
-            ],
-            "type": "rad"
-        },
-        {
-            "answer": [
-                "вариант1 правильный",
-                "вариант3 правильный"
-            ],
-            "question": [
-                "сам вопрос",
-                [
-                    "вариант1 правильный",
-                    "вариант2",
-                    "вариант3 правильный",
-                    "вариант3",
-                    "вариант4"
-                ]
-            ]
-        }
-    ]
-
     params = {
         'title': 'test',
-        'question': [question_index]
+        'question': questions[int(question_index)]
     }
 
     # Если True - перенос на адрес с question_index + 1, пока он != len(questions) - 1
