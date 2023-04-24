@@ -74,3 +74,7 @@ class Open(FlaskForm):
     radio = FormField(OpenRadio)
     checkbox = FormField(OpenCheckbox)
     submit = SubmitField('Ответить')
+
+
+class OpenSubmit:
+    pass
