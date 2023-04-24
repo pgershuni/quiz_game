@@ -1,8 +1,8 @@
 import requests
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user, login_required
-from forms import LoginForm, RegForm, Create, CreateType, CreateQuestionCommon, CreateQuestionCheckbox, \
-    CreateQuestionRadio, CreateQuestionSubmit, OpenCommon, OpenRadio, OpenCheckbox, OpenSubmit
+from forms import LoginForm, RegForm, Create, CreateType, CreateTest, OpenCommon, OpenRadio, OpenCheckbox, OpenSubmit
+import itertools
 
 app = Flask('app')
 app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
@@ -224,7 +224,6 @@ def create_type():
             'description': request.args['description'],
             'type': request.args['type']
         }
-
         # print('/creating/question?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
         return redirect('/creating/question?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
 
@@ -238,38 +237,74 @@ def create_type():
 @login_required
 def create_question():
     print('creating questions')
-    form_common = CreateQuestionCommon()
-    form_radio = CreateQuestionRadio()
-    form_checkbox = CreateQuestionCheckbox()
-    form_submit = CreateQuestionSubmit()
+    form = CreateTest()
 
     types = request.args['types'][1:-1].replace("'", "").split(', ')
 
     params = {
         'types': types,
         'int': int,
-        'form_common': form_common,
-        'form_radio': form_radio,
-        'form_checkbox': form_checkbox,
-        'form_submit': form_submit
+        'form': form,
+        'it': itertools
     }
 
     # Здесь нужно все заносить в бд
-    if form_submit.validate_on_submit():
+    if form.validate_on_submit():
+
+        questions = []
+        index = 0
+        for elem in form.data['questions']:
+            _type = types[index]
+
+            if _type == 'обычный':
+                time = {'answer': elem['true_answer'], 'question': elem['text'], 'type': 'ord'}
+                questions.append(time)
+
+            elif _type == 'выбор правильного ответа':
+                time = {'answer': elem['true_answer'],
+                        'question': [elem['text'], elem['options']],
+                        'type': 'rad'}
+
+                questions.append(time)
+
+            else:
+                time = {'answer': elem['true_answer'],
+                        'question': [elem['text'], elem['options']],
+                        'type': 'check'}
+
+                questions.append(time)
+
+            print(questions)
+            index += 1
+
+        # ключ сам создавай, я не знаю по какому принципу он создается
+        # а также нужно каким-то способом получить id юзера, который создает тест
+        params = {
+            'name': request.args['title'],
+            'category': request.args['category'],
+            'is_private': True if request.args['type'] == 'Открытый' else False,
+            # 'key': '',
+            'about': request.args['description'],
+            'questions': questions,
+            'user_id': '???'
+        }
+
         return redirect('/creating/thbc')
 
-    if types.count('обычный') != 0:
-        form_common.common.append_entry()
+    for elem in range(types.count('обычный')):
+        form.questions.append_entry()
 
-    if types.count('выбор правильного ответа') != 0:
+    for elem in range(types.count('выбор правильного ответа')):
+        form.questions.append_entry()
         for q in range(3):
-            form_radio.radio.append_entry()
-            form_radio.radio[-1].label = f'Вариант {q + 1}'
+            form.questions[-1].options.append_entry()
+            form.questions[-1].options[-1].label = f'Вариант {q + 1}'
 
-    if types.count('выбор нескольких правильных ответов') != 0:
+    for elem in range(types.count('выбор нескольких правильных ответов')):
+        form.questions.append_entry()
         for q in range(3):
-            form_checkbox.checkbox.append_entry()
-            form_checkbox.checkbox[-1].label = f'Вариант {q + 1}'
+            form.questions[-1].options.append_entry()
+            form.questions[-1].options[-1].label = f'Вариант {q + 1}'
 
     return render_template("creating_question.html", **params)
 

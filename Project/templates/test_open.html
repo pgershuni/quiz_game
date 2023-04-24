@@ -10,33 +10,33 @@
         {{ form_checkbox.csrf_token() }}
         {{ form_submit.csrf_token() }}
 
+        <br><br><br>
         {% if question['type'] == 'ord' %}
             <div class="row">
-                <div class="col-4"></div>
-                <div class="col-md-4">{{ question['question'] }}</div>
-                <div class="col-4"></div>
+                <div class="col text-center"><h3>{{ question['question'] }}</h3></div>
             </div>
             <br>
             <div class="row">
-                <div class="col-2"></div>
-                <div class="col-md-4">{{ form_common.label }}</div>
+                <div class="col-4"></div>
                 <div class="col-md-4">{{ form_common.answer(class="form-control") }}</div>
-                <div class="col-2"></div>
+                <div class="col-4"></div>
             </div>
         {% elif question['type'] == 'rad' %}
             <div class="row">
-                <div class="col-4"></div>
-                <div class="col-md-4">{{ question['question'][0] }}</div>
-                <div class="col-4"></div>
+                <div class="col text-center"><h3>{{ question['question'][0] }}</h3></div>
             </div>
             <div class="row">
-                <div class="col-md">{{ form_radio.radio(choices=question['question'][1], class="form-check form-check-inline") }}</div>
+                <div class="col-md">{{ form_radio.radio(class="form-check form-check-inline") }}</div>
             </div>
         {% elif question['type'] == 'check' %}
             <div class="row">
-                <div class="col-md">{{ form_checkbox.checkbox(choices=question['question'][1], class="form-check form-check-inline") }}</div>
+                <div class="col text-center"><h3>{{ question['question'][0] }}</h3></div>
+            </div>
+            <div class="row">
+                <div class="col-md">{{ form_checkbox.checkbox(class="form-check form-check-inline") }}</div>
             </div>
         {% endif %}
+        <br>
         <div class="row">
             <div class="col-4"></div>
             <div class="col-md-4">{{ form_submit.submit(class="btn btn-primary w-100") }}</div>

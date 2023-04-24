@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField, FieldList, \
-    RadioField, SelectMultipleField
+    RadioField, SelectMultipleField, FormField
 from wtforms.validators import DataRequired, Length
 
 
@@ -46,26 +46,13 @@ class CreateType(FlaskForm):
 
 
 class CreateQuestion(FlaskForm):
-    question = FieldList(StringField('Условие', validators=[DataRequired()]),
-                         StringField('Правильный ответ', validators=[DataRequired()]))
-
-
-class CreateQuestionCommon(FlaskForm):
-    common = FieldList(StringField('Условие', validators=[DataRequired()]))
+    text = StringField('Условие', validators=[DataRequired()])
+    options = FieldList(StringField('Вариант', validators=[DataRequired()]))
     true_answer = StringField('Правильный ответ', validators=[DataRequired()])
 
 
-class CreateQuestionRadio(FlaskForm):
-    radio = FieldList(StringField('Вариант', validators=[DataRequired()]))
-    true_answer = StringField('Правильный вариант', validators=[DataRequired()])
-
-
-class CreateQuestionCheckbox(FlaskForm):
-    checkbox = FieldList(StringField('Вариант', validators=[DataRequired()]))
-    true_answer = StringField('Правильный вариант', validators=[DataRequired()])
-
-
-class CreateQuestionSubmit(FlaskForm):
+class CreateTest(FlaskForm):
+    questions = FieldList(FormField(CreateQuestion))
     submit = SubmitField('Создать тест')
 
 
@@ -83,3 +70,5 @@ class OpenCheckbox(FlaskForm):
 
 class OpenSubmit(FlaskForm):
     submit = SubmitField('Ответить')
+
+
