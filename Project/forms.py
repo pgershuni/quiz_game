@@ -68,7 +68,9 @@ class OpenCheckbox(FlaskForm):
     checkbox = SelectMultipleField(validators=[DataRequired()])
 
 
-class OpenSubmit(FlaskForm):
+class Open(FlaskForm):
+    text = StringField()
+    common = FormField(OpenCommon)
+    radio = FormField(OpenRadio)
+    checkbox = FormField(OpenCheckbox)
     submit = SubmitField('Ответить')
-
-

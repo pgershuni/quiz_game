@@ -1,7 +1,7 @@
 import requests
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user, login_required
-from forms import LoginForm, RegForm, Create, CreateType, CreateTest, OpenCommon, OpenRadio, OpenCheckbox, OpenSubmit
+from forms import LoginForm, RegForm, Create, CreateType, CreateTest, Open
 import itertools
 
 app = Flask('app')
@@ -274,7 +274,6 @@ def create_question():
 
                 questions.append(time)
 
-            print(questions)
             index += 1
 
         # ключ сам создавай, я не знаю по какому принципу он создается
@@ -300,7 +299,7 @@ def create_question():
             form.questions[-1].options.append_entry()
             form.questions[-1].options[-1].label = f'Вариант {q + 1}'
 
-    for elem in range(types.count('выбор нескольких правильных ответов')):
+    for elem in range(types.count('выбор правильного ответа')):
         form.questions.append_entry()
         for q in range(3):
             form.questions[-1].options.append_entry()
@@ -325,13 +324,10 @@ def test_open(key, question_index):
 
     print(f'test {key} have been opened')
 
-    form_common = OpenCommon()
-    form_radio = OpenRadio()
-    form_checkbox = OpenCheckbox()
-    form_submit = OpenSubmit()
+    form = Open()
 
     # Тут же проверять ответ
-    if form_submit.validate_on_submit():
+    if form.validate_on_submit():
         if question_index == len(questions):
             return render_template('/main')
 
@@ -341,11 +337,21 @@ def test_open(key, question_index):
     params = {
         'title': test['name'],
         'question': questions[int(question_index)],
-        'form_common': form_common,
-        'form_radio': form_radio,
-        'form_checkbox': form_checkbox,
-        'form_submit': form_submit
+        'form': form,
+        'type': questions[int(question_index)]['type']
     }
+
+    if len(params['question']['question']) == 1:
+        form.text.label = params['question']['question']
+
+    else:
+        form.text.label = params['question']['question'][0]
+
+        if params['type'] == "rad":
+            form.radio.radio.choices = params['question']['question'][1]
+
+        else:
+            form.checkbox.checkbox.choices = params['question']['question'][1]
 
     return render_template("test_open.html", **params)
 
