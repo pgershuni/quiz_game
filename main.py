@@ -394,5 +394,6 @@ api.add_resource(UserResource, '/api/users/<int:user_id>')
 # добавление обработчиков для api телеграм ключей
 api.add_resource(TelegramKeyListResource, '/api/telegram_keys')
 api.add_resource(TelegramKeyResource, '/api/telegram_keys/<int:key>')
+import db_test
 
 app.run(port=8080)
