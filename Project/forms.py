@@ -57,20 +57,18 @@ class CreateTest(FlaskForm):
 
 
 class OpenCommon(FlaskForm):
+    text = StringField()
     answer = StringField('Ответ', validators=[DataRequired()])
+    submit = SubmitField('Ответить')
 
 
 class OpenRadio(FlaskForm):
+    text = StringField()
     radio = RadioField(validators=[DataRequired()], choices=[])
+    submit = SubmitField('Ответить')
 
 
 class OpenCheckbox(FlaskForm):
-    checkbox = SelectMultipleField(validators=[DataRequired()], choices=[])
-
-
-class Open(FlaskForm):
     text = StringField()
-    common = FormField(OpenCommon)
-    radio = FormField(OpenRadio)
-    checkbox = FormField(OpenCheckbox)
+    checkbox = SelectMultipleField(validators=[DataRequired()], choices=[])
     submit = SubmitField('Ответить')

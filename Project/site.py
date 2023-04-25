@@ -3,7 +3,7 @@ import random
 import requests
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user, login_required
-from forms import LoginForm, RegForm, Create, CreateType, CreateTest, Open
+from forms import LoginForm, RegForm, Create, CreateType, CreateTest, OpenCommon, OpenRadio, OpenCheckbox
 import itertools
 from random import choices
 
@@ -343,46 +343,73 @@ def test_open(key, question_index):
 
     print(f'test {key} have been opened')
 
-    form = Open()
+    form_common = OpenCommon()
+    form_radio = OpenRadio()
+    form_checkbox = OpenCheckbox()
 
-    params = {
-        'title': test['name'],
-        'question': questions[int(question_index)],
-        'form': form,
-        'type': questions[int(question_index)]['type'],
-        '_choices': []
-    }
+    try:
+        params = {
+            'title': test['name'],
+            'question': questions[int(question_index)],
+            'form': '',
+            'type': questions[int(question_index)]['type'],
+            '_choices': []
+        }
 
-    # Тут же проверять ответ
-    if form.validate_on_submit():
-        if question_index == len(questions):
-            return render_template('/main')
+        if params['type'] == 'ord':
+            form_common.text.label = params['question']['question']
+            params['form'] = form_common
 
         else:
-            # if request.form
 
-            params = {
-                'correct_count': []
+            params['_choices'] = params['question']['question'][1]
+            if params['type'] == "rad":
+                params['form'] = form_radio
+                form_radio.text.label = params['question']['question'][0]
+                form_radio.radio.choices = params['question']['question'][1]
+
+            else:
+                params['form'] = form_checkbox
+                form_checkbox.text.label = params['question']['question'][0]
+                form_checkbox.checkbox.choices = params['question']['question'][1]
+
+        # Тут же проверять ответ
+        if params['form'].validate_on_submit():
+            data = {
+                'ta': int(request.args['ta'])
             }
-            # return redirect('/creating/question?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
-            return redirect(f"/test_open/{key}/{int(question_index) + 1}" + '&'.join(
-                [key + '=' + str(value) for key, value in params.items()])
-                            )
+            if params['type'] == 'ord':
+                if params['form'] == params['question']['answer']:
+                    data['ta'] += 1
 
-    if len(params['question']['question']) == 1:
-        form.text.label = params['question']['question']
+            else:
+                if params['type'] == "rad":
+                    if params['form'].radio == params['question']['answer']:
+                        data['ta'] += 1
+                else:
+                    if set(params['form'].checkbox) == set(params['question']['answer']):
+                        data['ta'] += 1
 
-    else:
-        form.text.label = params['question']['question'][0]
+            return redirect(f"/test_open/{key}/{int(question_index) + 1}" + f'?ta={data["ta"]}')
 
-        params['_choices'] = params['question']['question'][1]
-        if params['type'] == "rad":
-            form.radio.radio.choices = params['question']['question'][1]
+    except IndexError:
+        return redirect(f'/test_passed/{len(questions)}/{request.args["ta"]}')
 
-        else:
-            form.checkbox.checkbox.choices = params['question']['question'][1]
+    except KeyError:
+        return redirect(f"/test_open/{key}/{int(question_index) + 1}" + f'?ta={0}')
 
     return render_template("test_open.html", **params)
+
+
+@app.route('/test_passed/<count>/<ta>', methods=['GET', 'POST'])
+def test_passed(count, ta):
+    params = {
+        'percent': int(int(ta) / int(count) * 100)
+    }
+
+    requests.get(f"http://127.0.0.1:8080/api/passed_tests/{current_user.get_data()['id']}")
+
+    return render_template("test_passed.html", **params)
 
 
 if __name__ == '__main__':
