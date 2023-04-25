@@ -183,7 +183,8 @@ def stats():
         'mess_with_count': message,
         'len': len,
         'lst': lst,
-        'user_id': current_user.get_data()['id']
+        'user_id': current_user.get_data()['id'],
+        'tg_key': request.args['tg_key']
     }
 
     return render_template('stats.html', **params)
@@ -410,6 +411,14 @@ def test_passed(count, ta):
     requests.get(f"http://127.0.0.1:8080/api/passed_tests/{current_user.get_data()['id']}")
 
     return render_template("test_passed.html", **params)
+
+
+@app.route('/profile/create_tg_key', methods=['GET', 'POST'])
+def create_tg_key():
+    response = requests.post("http://127.0.0.1:8080/api/telegram_keys", json={'user_id': current_user.get_data()['id']})
+    tg_key = response.json()['key']
+    print(tg_key)
+    return redirect("/profile/stats" + f"?tg_key={tg_key}")
 
 
 if __name__ == '__main__':
