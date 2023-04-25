@@ -145,15 +145,14 @@ def main():
 def search():
     print("searching")
 
+    lst = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
     name = request.form['name']
 
-    # Список словарей с подходиящими названиями
-    lst = [{"title": "Первый тест", "description": "Биология", "questions": 3, "category": "Иван Сусанин"},
-           {"title": 'Второй тест', "description": "Математика", "questions": 5, "category": "Марина"},
-           {"title": 'Третий тест', "description": "Кулинария", "questions": 10, "category": "Биология"}]
-
-    params = {"lst": lst,
-              "name": name}
+    params = {
+        "lst": lst,
+        "name": name,
+        "len": len
+    }
 
     return render_template('searching.html', **params)
 
@@ -276,17 +275,16 @@ def create_question():
 
             index += 1
 
-        # ключ сам создавай, я не знаю по какому принципу он создается
-        # а также нужно каким-то способом получить id юзера, который создает тест
         params = {
-            'name': request.args['title'],
+            'title': request.args['title'],
             'category': request.args['category'],
-            'is_private': True if request.args['type'] == 'Открытый' else False,
-            # 'key': '',
+            'is_private': 'True' if request.args['type'] == 'Открытый' else 'False',
             'about': request.args['description'],
             'questions': questions,
-            'user_id': '???'
+            'user_id': '1'
         }
+
+        requests.post("http://127.0.0.1:8080/api/tests", json=params)
 
         return redirect('/creating/thbc')
 
