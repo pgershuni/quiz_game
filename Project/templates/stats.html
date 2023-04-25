@@ -15,20 +15,29 @@
         <br>
         <div class="row">
             <div class="col-4"></div>
+            <div class="col-1">tg key:</div>
+            <div class="col-2">{{ tg_key }}</div>
+            <div class="col-2"><a href="create_tg_key" class="btn btn-primary w-100">Сгенерировать</a></div>
+            <div class="col-3"></div>
+        </div>
+        <div class="row">
+            <div class="col-4"></div>
             <div class="text-center"><h3>Список ваших тестов:</h3></div>
             <div class="col-4"></div>
         </div>
         <br>
         <div class="list-group col-md-9 mx-auto">
             {% for test in lst %}
-                  <a href="#" class="list-group-item list-group-item-action cell">
-                    <div class="d-flex w-100 justify-content-between">
-                      <h5 class="mb-1">{{ test["title"] }}</h5>
-                      <small>{{ test["category"] }}</small>
-                    </div>
-                    <p class="mb-1">Описание: {{ test["description"] }}</p>
-                    <small>Количество вопросов: {{ test["questions"] }}</small>
-                  </a>
+                {% if test['user_id'] == user_id %}
+                    <a href="/test_open/{{ test['key'] }}/0" class="list-group-item list-group-item-action cell">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ test["name"] }}</h5>
+                            <small>{{ test["category"] }}</small>
+                        </div>
+                        <p class="mb-1">Описание: {{ test["description"] }}</p>
+                        <small>Количество вопросов: {{ len(test["questions"]) }}</small>
+                    </a>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
