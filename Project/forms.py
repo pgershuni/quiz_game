@@ -61,11 +61,11 @@ class OpenCommon(FlaskForm):
 
 
 class OpenRadio(FlaskForm):
-    radio = RadioField(validators=[DataRequired()])
+    radio = RadioField(validators=[DataRequired()], choices=[])
 
 
 class OpenCheckbox(FlaskForm):
-    checkbox = SelectMultipleField(validators=[DataRequired()])
+    checkbox = SelectMultipleField(validators=[DataRequired()], choices=[])
 
 
 class Open(FlaskForm):

@@ -1,14 +1,17 @@
+import random
+
 import requests
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user, login_required
 from forms import LoginForm, RegForm, Create, CreateType, CreateTest, Open
 import itertools
+from random import choices
 
 app = Flask('app')
 app.config['SECRET_KEY'] = 'secretkeyandexlyceum'
 
 # Доделать:
-# - Поиск по имени
+# - Проверка наличия теста с таким же именем
 # - Открытие тестов
 
 login_manager = LoginManager()
@@ -111,11 +114,13 @@ def login():
 @login_required
 def welcome():
     req_data = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
-    tests = []
 
+    tests = []
     for test in req_data:
-        tests.append({'title': test['name'], 'description': test['about'], 'questions': len(test['questions']),
+        tests.append({'name': test['name'], 'description': test['about'], 'questions': len(test['questions']),
                       'category': test['category'], 'key': test['key']})
+
+    tests = random.choices(tests, k=3)
 
     print('success authorization')
 
@@ -126,17 +131,16 @@ def welcome():
 @app.route('/main', methods=['GET', 'POST'])
 @login_required
 def main():
-    params = {
-        "list_of_tests": [
-            {"title": "Первый тест", "description": "Биология", "questions": 3, "category": "Иван Сусанин",
-             'key': '469456209'},
-            {"title": 'Второй тест', "description": "Математика", "questions": 5, "category": "Марина", 'key': '12321'},
-            {"title": 'Третий тест', "description": "Кулинария", "questions": 10, "category": "Биология"}]
-    }
+    req_data = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
+
+    tests = []
+    for test in req_data:
+        tests.append({'name': test['name'], 'description': test['about'], 'questions': len(test['questions']),
+                      'category': test['category'], 'key': test['key']})
 
     print("main page opened")
 
-    return render_template("main.html", **params)
+    return render_template("main.html", list_of_tests=tests)
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -199,8 +203,17 @@ def create():
                   'description': form.description.data,
                   'type': form.type.data}
 
-        # print('/creating/types?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
-        return redirect('/creating/types?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
+        gg = 0
+        for test in requests.get('http://127.0.0.1:8080/api/tests').json()['tests']:
+            if test['name'] == params['title']:
+                gg = 1
+                break
+
+        if gg == 0:
+            return redirect('/creating/types?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
+
+        else:
+            return render_template('creating.html', form=form, errors=['Тест с таким названием уже существует!'])
 
     return render_template('creating.html', form=form)
 
@@ -305,7 +318,7 @@ def create_question():
             form.questions[-1].options.append_entry()
             form.questions[-1].options[-1].label = f'Вариант {q + 1}'
 
-    for elem in range(types.count('выбор правильного ответа')):
+    for elem in range(types.count('выбор нескольких правильных ответов')):
         form.questions.append_entry()
         for q in range(3):
             form.questions[-1].options.append_entry()
@@ -340,11 +353,15 @@ def test_open(key, question_index):
         else:
             return redirect(f"/test_open/{key}/{int(question_index) + 1}")
 
+    else:
+        print(form.errors)
+
     params = {
         'title': test['name'],
         'question': questions[int(question_index)],
         'form': form,
-        'type': questions[int(question_index)]['type']
+        'type': questions[int(question_index)]['type'],
+        '_choices': []
     }
 
     if len(params['question']['question']) == 1:
@@ -353,11 +370,12 @@ def test_open(key, question_index):
     else:
         form.text.label = params['question']['question'][0]
 
-        if params['type'] == "rad":
-            form.radio.radio.choices = params['question']['question'][1]
-
-        else:
-            form.checkbox.checkbox.choices = params['question']['question'][1]
+        params['_choices'] = params['question']['question'][1]
+        # if params['type'] == "rad":
+        #     form.radio.radio.choices = params['question']['question'][1]
+        #
+        # else:
+        #     form.checkbox.checkbox.choices = params['question']['question'][1]
 
     return render_template("test_open.html", **params)
 

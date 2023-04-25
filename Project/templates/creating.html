@@ -14,6 +14,14 @@
             <div class="col-md-4">{{ form.title.label }}</div>
             <div class="col-md-4">{{ form.title(class="form-control") }}</div>
             <div class="col-2"></div>
+            <br>
+            {% for error in errors %}
+                <div class="alert alert-danger row text-center" role="alert">
+                    <div class="col-4"></div>
+                    <div class="col-md-4">{{ error }}</div>
+                    <div class="col-4"></div>
+                </div>
+            {% endfor %}
         </div>
         <br>
         <div class="row">

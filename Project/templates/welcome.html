@@ -20,7 +20,7 @@
             {% for test in lst %}
                   <a href="test_open/{{ test['key'] }}/0" class="list-group-item list-group-item-action cell">
                     <div class="d-flex w-100 justify-content-between">
-                      <h5 class="mb-1">{{ test["title"] }}</h5>
+                      <h5 class="mb-1">{{ test["name"] }}</h5>
                       <small>{{ test["category"] }}</small>
                     </div>
                     <p class="mb-1">Описание: {{ test["description"] }}</p>
