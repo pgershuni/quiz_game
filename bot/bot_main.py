@@ -7,6 +7,7 @@ checkbox_options = []
 logining = False
 getting_test_key = False
 tele_token = '5522035331:AAEgdpuFeH4TvobyHNr6vW7YaJdfRQKO90w'
+url = 'https://agate-wool-teeth.glitch.me/'
 
 
 def get_users():
@@ -19,7 +20,7 @@ def get_users():
 
 
 async def get_tests(user_id, message, num_tests):
-    tests = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
+    tests = requests.get(f'{url}api/tests').json()['tests']
     for test in tests[num_tests - 10: num_tests]:
         mess = f'''{test["name"].upper()} 
 тема: {test["category"]}    количество вопросов: {len(test["questions"])} 
@@ -33,7 +34,8 @@ async def get_tests(user_id, message, num_tests):
         text='показать',
         callback_data=f'get_more_tests;{user_id};{num_tests}')]]
     markup = InlineKeyboardMarkup(reply_keyboard)
-    await message.reply_text('показать ещё тесты', reply_markup=markup)
+    if len(tests) > num_tests:
+        await message.reply_text('показать ещё тесты', reply_markup=markup)
 
 
 
@@ -43,7 +45,7 @@ async def finish_test(user_id, message):
     await message.reply_html(f"ваш процент прохождения теста: {str(result * 100)[:5]}%")
     del passable_tests[user_id]
     if user_id in get_users().keys() and result >= 0.8:
-        response = requests.get(f'http://127.0.0.1:8080/api/passed_tests/{get_users()[user_id]}')
+        response = requests.get(f'{url}api/passed_tests/{get_users()[user_id]}')
     checkbox_options = []
 
 
@@ -87,7 +89,8 @@ async def check_answer(answer, message, user_id):
     passable_test = passable_tests[user_id]
     question = passable_test['test']['questions'][passable_test['num_question']]
     if question['type'] == 'ord':
-        if str(passable_test['test']['questions'][passable_test['num_question']]['answer']) == str(answer):
+        if str(passable_test['test']['questions'][passable_test['num_question']]['answer']).upper() ==\
+                str(answer).upper():
             passable_tests[user_id]['correctly_answered_questions'] += 1
         passable_tests[user_id]['num_question'] += 1
         await ask_question(message, user_id)
@@ -99,7 +102,7 @@ async def user_response_handler(update, context):
         await check_answer(update.message.text, update.message, update.message.from_user.id)
     elif logining:
         logining = False
-        user_id = requests.get(f'http://127.0.0.1:8080/api/telegram_keys/{update.message.text}')
+        user_id = requests.get(f'{url}telegram_keys/{update.message.text}')
         if str(user_id) == '<Response [404]>':
             await update.message.reply_text('Ключ не найден.')
         elif str(user_id) == '<Response [400]>':
@@ -123,7 +126,7 @@ async def user_response_handler(update, context):
                 await update.message.reply_text('Вы авторизовались.')
     elif getting_test_key:
         getting_test_key = False
-        test = requests.get(f'http://127.0.0.1:8080/api/tests/{update.message.text}')
+        test = requests.get(f'{url}api/tests/{update.message.text}')
         if str(test) == '<Response [404]>':
             await update.message.reply_text('тест не найден.')
         elif str(test) == '<Response [200]>':
@@ -189,7 +192,7 @@ async def callbacks_handler(update, context):
         if user_id in passable_tests.keys():
             await update.callback_query.message.reply_text('вы уже проходите тест')
         else:
-            test = requests.get(f'http://127.0.0.1:8080/api/tests/{key}').json()['test']
+            test = requests.get(f'{url}api/tests/{key}').json()['test']
             passable_tests[user_id] = {
                 'test': test,
                 'num_question': 0,
@@ -199,17 +202,23 @@ async def callbacks_handler(update, context):
             await ask_question(update.callback_query.message, user_id)
     elif 'change_option' in update.callback_query.data:
         user_id = int(update.callback_query.data.split(";")[2])
+        if not user_id in passable_tests.keys():
+            return
         if update.callback_query.data.split(";")[1] == \
                 passable_tests[user_id]['test']['questions'][passable_tests[user_id]['num_question']]['answer']:
             passable_tests[user_id]['correctly_answered_questions'] += 1
         passable_tests[user_id]['num_question'] += 1
         await ask_question(update.callback_query.message, user_id)
     elif 'change_checkbox' in update.callback_query.data:
+
         option = update.callback_query.data.split(";")[1]
         checkbox_options.append(option)
         await update.callback_query.message.reply_text(f'вы выбрали {option}, чтобы отпраить ответы, нажмите отправить')
     elif 'submit_options' in update.callback_query.data:
         user_id = int(update.callback_query.data.split(";")[1])
+        if not user_id in passable_tests.keys():
+            return
+
         if set(checkbox_options) == set(
                 passable_tests[user_id]['test']['questions'][passable_tests[user_id]['num_question']]['answer']):
             passable_tests[user_id]['correctly_answered_questions'] += 1
@@ -231,7 +240,7 @@ async def callbacks_handler(update, context):
         if user_id not in get_users().keys():
             await update.callback_query.message.reply_text(f'вы не авторизованы')
         else:
-            user = requests.get(f'http://127.0.0.1:8080/api/users/{get_users()[user_id]}').json()['user']
+            user = requests.get(f'{url}api/users/{get_users()[user_id]}').json()['user']
             message = f'имя: {user["name"]}\nо пользователе: {user["about"]}\nпройдено тестов:{user["passed_tests"]}'
             await update.callback_query.message.reply_text(message)
 def main():
