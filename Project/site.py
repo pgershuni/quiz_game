@@ -178,14 +178,22 @@ def stats():
         message = 'Всего пройдено ' + str(params) + ' тестов'
 
     lst = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
-
-    params = {
-        'mess_with_count': message,
-        'len': len,
-        'lst': lst,
-        'user_id': current_user.get_data()['id'],
-        'tg_key': request.args['tg_key']
-    }
+    
+    if 'tg_key' in request.args:
+        params = {
+            'mess_with_count': message,
+            'len': len,
+            'lst': lst,
+            'user_id': current_user.get_data()['id'],
+            'tg_key': request.args['tg_key']
+        }
+    else:
+        params = {
+            'mess_with_count': message,
+            'len': len,
+            'lst': lst,
+            'user_id': current_user.get_data()['id']
+        }
 
     return render_template('stats.html', **params)
 
