@@ -113,7 +113,6 @@ def welcome():
     req_data = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
     tests = []
 
-    # Наладить тут с данными
     for test in req_data:
         tests.append({'title': test['name'], 'description': test['about'], 'questions': len(test['questions']),
                       'category': test['category'], 'key': test['key']})
@@ -174,7 +173,16 @@ def stats():
     else:
         message = 'Всего пройдено ' + str(params) + ' тестов'
 
-    return render_template('stats.html', mess_with_count=message)
+    lst = requests.get('http://127.0.0.1:8080/api/tests').json()['tests']
+
+    params = {
+        'mess_with_count': message,
+        'len': len,
+        'lst': lst,
+        'user_id': current_user.get_data()['id']
+    }
+
+    return render_template('stats.html', **params)
 
 
 @app.route('/creating', methods=['GET', 'POST'])
@@ -281,7 +289,7 @@ def create_question():
             'is_private': 'True' if request.args['type'] == 'Открытый' else 'False',
             'about': request.args['description'],
             'questions': questions,
-            'user_id': '1'
+            'user_id': current_user.get_data()['id']
         }
 
         requests.post("http://127.0.0.1:8080/api/tests", json=params)
