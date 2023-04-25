@@ -5,6 +5,7 @@
 {% block body %}
 
     <form class="container" method="post">
+        {{ form.csrf_token() }}
         <br><br><br>
         <div class="row">
                 <div class="col-3"></div>
@@ -13,7 +14,7 @@
         </div>
         <br>
         {% if type == "ord" %}
-            {{ form.csrf_token() }}
+            {{ form.common.csrf_token() }}
             <div class="row">
                 <div class="col-2"></div>
                 <div class="col-md-4">{{ form.common.answer.label }}</div>
@@ -21,7 +22,7 @@
                 <div class="col-2"></div>
             </div>
         {% elif type == "rad" %}
-            {{ form.csrf_token() }}
+            {{ form.radio.csrf_token() }}
             <div class="row">
                 <div class="col"></div>
             </div>
@@ -29,7 +30,7 @@
                 <div class="col">{{ form.radio.radio(class="form-check form-check-inline", choices=_choices) }}</div>
             </div>
         {% elif type == "check" %}
-            {{ form.csrf_token() }}
+            {{ form.checkbox.csrf_token() }}
             <div class="row">
                 <div class="col">{{ form.radio.radio(class="form-check form-check-inline", choices=_choices) }}</div>
             </div>

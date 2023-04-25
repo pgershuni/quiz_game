@@ -345,17 +345,6 @@ def test_open(key, question_index):
 
     form = Open()
 
-    # Тут же проверять ответ
-    if form.validate_on_submit():
-        if question_index == len(questions):
-            return render_template('/main')
-
-        else:
-            return redirect(f"/test_open/{key}/{int(question_index) + 1}")
-
-    else:
-        print(form.errors)
-
     params = {
         'title': test['name'],
         'question': questions[int(question_index)],
@@ -364,6 +353,22 @@ def test_open(key, question_index):
         '_choices': []
     }
 
+    # Тут же проверять ответ
+    if form.validate_on_submit():
+        if question_index == len(questions):
+            return render_template('/main')
+
+        else:
+            # if request.form
+
+            params = {
+                'correct_count': []
+            }
+            # return redirect('/creating/question?' + '&'.join([k + '=' + str(v) for k, v in params.items()]))
+            return redirect(f"/test_open/{key}/{int(question_index) + 1}" + '&'.join(
+                [key + '=' + str(value) for key, value in params.items()])
+                            )
+
     if len(params['question']['question']) == 1:
         form.text.label = params['question']['question']
 
@@ -371,11 +376,11 @@ def test_open(key, question_index):
         form.text.label = params['question']['question'][0]
 
         params['_choices'] = params['question']['question'][1]
-        # if params['type'] == "rad":
-        #     form.radio.radio.choices = params['question']['question'][1]
-        #
-        # else:
-        #     form.checkbox.checkbox.choices = params['question']['question'][1]
+        if params['type'] == "rad":
+            form.radio.radio.choices = params['question']['question'][1]
+
+        else:
+            form.checkbox.checkbox.choices = params['question']['question'][1]
 
     return render_template("test_open.html", **params)
 
